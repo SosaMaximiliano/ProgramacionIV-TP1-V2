@@ -1,0 +1,111 @@
+<section class="auth-page">
+  <div class="auth-card register-card">
+    <span class="auth-mark" aria-hidden="true">✦</span>
+    <span class="section-kicker">SUMATE A CINÉFILA</span>
+    <h1>Creá tu cuenta</h1>
+    <p>Creá tu perfil y recibí un 20 % de descuento en tu primera compra.</p>
+
+    <form [formGroup]="formRegistro" class="auth-form register-form" (ngSubmit)="registrarse()">
+      <label class="form-field">
+        Nombre
+        <input type="text" formControlName="nombre" />
+        @if (esCampoInvalido('nombre')) {
+          @if (formRegistro.get('nombre')?.hasError('required')) {
+            <small>El nombre es obligatorio</small>
+          }
+          @if (formRegistro.get('nombre')?.hasError('minlength')) {
+            <small>El nombre debe tener al menos dos caracteres</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Apellido
+        <input type="text" formControlName="apellido" />
+        @if (esCampoInvalido('apellido')) {
+          @if (formRegistro.get('apellido')?.hasError('required')) {
+            <small>El apellido es obligatorio</small>
+          }
+          @if (formRegistro.get('apellido')?.hasError('minlength')) {
+            <small>El apellido debe tener al menos dos caracteres</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Correo electrónico
+        <input type="email" formControlName="correo" />
+        @if (esCampoInvalido('correo')) {
+          @if (formRegistro.get('correo')?.hasError('required')) {
+            <small>El correo es obligatorio</small>
+          }
+          @if (formRegistro.get('correo')?.hasError('email')) {
+            <small>Ingresá un correo válido.</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Fecha de nacimiento
+        <input type="date" formControlName="fechaNacimiento" />
+        @if (esCampoInvalido('fechaNacimiento')) {
+          @if (formRegistro.get('fechaNacimiento')?.hasError('required')) {
+            <small>La fecha es obligatoria</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Tipo de sangre
+        <input type="text" placeholder="Ej. O+" formControlName="tipoSangre" />
+        @if (esCampoInvalido('tipoSangre')) {
+          @if (formRegistro.get('tipoSangre')?.hasError('required')) {
+            <small>El tipo de sangre es obligatorio</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Color de ojos
+        <input type="text" formControlName="colorOjos" />
+        @if (esCampoInvalido('colorOjos')) {
+          @if (formRegistro.get('colorOjos')?.hasError('required')) {
+            <small>El color de ojos es obligatorio</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Días de vacaciones al año
+        <input type="number" formControlName="diasVacaciones" />
+      </label>
+      <label class="form-field">
+        Contraseña
+        <input type="password" name="password" formControlName="password" />
+        @if (esCampoInvalido('password')) {
+          @if (formRegistro.get('password')?.hasError('required')) {
+            <small>Debe ingresar una contraseña</small>
+          }
+          @if (formRegistro.get('password')?.hasError('minlength')) {
+            <small>La contraseña debe tener al menos 8 caracteres</small>
+          }
+        }
+      </label>
+      <label class="form-field">
+        Repetir contraseña
+        <input type="password" formControlName="repetirPassword" />
+        @if (
+          formRegistro.get('repetirPassword')?.value !== formRegistro.get('password')?.value &&
+          formRegistro.get('repetirPassword')?.touched
+        ) {
+          <small>Las contraseñas no coinciden</small>
+        }
+      </label>
+      @if (mensaje) {
+        <p class="auth-message" role="alert">{{ mensaje }}</p>
+      }
+      <button class="auth-submit" type="submit" [disabled]="procesando || formRegistro.invalid">
+        {{ procesando ? 'Creando cuenta…' : 'Crear cuenta y obtener descuento' }}
+      </button>
+    </form>
+    <p class="auth-switch">¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
+
+    <a class="guest-link" routerLink="/cartelera"
+      >Seguir como invitado <span aria-hidden="true">→</span></a
+    >
+  </div>
+</section>

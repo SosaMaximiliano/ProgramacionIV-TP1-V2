@@ -1,0 +1,48 @@
+@if (pelicula(); as pelicula) {
+  <div class="movie-detail">
+    <div class="detail-poster"><img [src]="pelicula.imagen" [alt]="pelicula.nombre" /></div>
+    <div class="detail-copy">
+      <span class="section-kicker">{{
+        pelicula.estaDisponible ? 'AHORA EN CARTELERA' : 'PRÓXIMAMENTE'
+      }}</span>
+      <h1>{{ pelicula.nombre }}</h1>
+      <div class="detail-tags">
+        <span>{{ pelicula.genero }}</span>
+        <span>{{ pelicula.duracion }} minutos</span>
+        <span>+{{ pelicula.clasificacionEdad }}</span>
+      </div>
+      <p class="detail-synopsis">{{ pelicula.sinopsis }}</p>
+      <a class="back-link" routerLink="/cartelera">← Volver a la cartelera</a>
+    </div>
+  </div>
+}
+
+@if (funciones().length > 0) {
+  <section class="showtimes-section">
+    <div class="showtimes-heading">
+      <div>
+        <span class="section-kicker">ELEGÍ CUÁNDO VENIR</span>
+        <h2>Funciones disponibles</h2>
+      </div>
+    </div>
+    <div class="showtimes-grid">
+      @for (funcion of funciones(); track $index) {
+        <article class="showtime-card">
+          <span class="showtime-icon" aria-hidden="true">◷</span>
+          <div class="showtime-info">
+            <strong>{{ funcion.hora }}</strong>
+            <span>{{ funcion.fecha }} · Sala {{ funcion.salaId }}</span>
+          </div>
+          <button (click)="seleccionarFuncion(funcion)">
+            Elegir <span aria-hidden="true">→</span>
+          </button>
+        </article>
+      }
+    </div>
+  </section>
+} @else {
+  <div class="no-showtimes">
+    <span aria-hidden="true">◷</span>
+    <p>No hay funciones disponibles por el momento.</p>
+  </div>
+}

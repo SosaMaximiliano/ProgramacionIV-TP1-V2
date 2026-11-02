@@ -1,0 +1,42 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <span class="auth-mark" aria-hidden="true">✦</span>
+    <span class="section-kicker">QUÉ BUENO VERTE</span>
+    <h1>Bienvenido de nuevo</h1>
+    <p>Tu próxima gran historia te está esperando.</p>
+    <form class="auth-form" (ngSubmit)="iniciarSesion()">
+      <label class="form-field">
+        Correo electrónico
+        <input
+          type="email"
+          name="correo"
+          [(ngModel)]="correo"
+          autocomplete="correo"
+          placeholder="nombre@correo.com"
+          required
+        />
+      </label>
+      <label class="form-field">
+        Contraseña
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          autocomplete="current-password"
+          placeholder="Tu contraseña"
+          required
+        />
+      </label>
+      @if (mensaje) {
+        <p class="auth-message" role="alert">{{ mensaje }}</p>
+      }
+      <button class="auth-submit" type="submit" [disabled]="procesando">
+        {{ procesando ? 'Ingresando…' : 'Iniciar sesión' }}
+      </button>
+    </form>
+    <p class="auth-switch">¿Todavía no tenés cuenta? <a routerLink="/registro">Registrate</a></p>
+    <a class="guest-link" routerLink="/peliculas"
+      >Seguir como invitado <span aria-hidden="true">→</span></a
+    >
+  </div>
+</section>

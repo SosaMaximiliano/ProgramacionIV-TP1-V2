@@ -1,0 +1,156 @@
+.cine-navbar {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--cine-border);
+  background: rgba(9, 11, 16, 0.82);
+  backdrop-filter: blur(18px);
+}
+
+.navbar-inner {
+  display: flex;
+  width: min(1200px, calc(100% - 48px));
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+
+.brand,
+.nav-link,
+.nav-cta,
+.nav-login {
+  text-decoration: none;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cine-text);
+}
+
+.brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(242, 189, 85, 0.45);
+  border-radius: 11px;
+  color: var(--cine-gold);
+  font-size: 20px;
+}
+
+.brand-name {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+}
+
+.nav-link {
+  color: var(--cine-muted);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 160ms ease;
+}
+
+.nav-link:hover {
+  color: var(--cine-gold-light);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+
+.nav-user {
+  max-width: 170px;
+  overflow: hidden;
+  color: var(--cine-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-login {
+  color: var(--cine-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nav-login:hover {
+  color: var(--cine-gold-light);
+}
+
+.nav-cta {
+  padding: 11px 16px;
+  border: 1px solid rgba(242, 189, 85, 0.42);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--cine-gold-light);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.nav-cta:hover {
+  border-color: var(--cine-gold);
+  background: rgba(242, 189, 85, 0.1);
+}
+
+.nav-cta span {
+  margin-left: 6px;
+}
+
+.nav-error {
+  margin: 0;
+  padding: 8px;
+  background: rgba(228, 84, 84, 0.12);
+  color: #ffaaa4;
+  font-size: 11px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .navbar-inner {
+    width: calc(100% - 32px);
+    min-height: 68px;
+  }
+
+  .nav-links {
+    gap: 14px;
+  }
+
+  .nav-actions {
+    gap: 9px;
+  }
+
+  .nav-user {
+    display: none;
+  }
+
+  .nav-login {
+    font-size: 11px;
+  }
+
+  .nav-cta {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+
+  .brand-name {
+    display: none;
+  }
+}

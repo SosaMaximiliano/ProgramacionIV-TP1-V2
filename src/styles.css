@@ -1,1 +1,53 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  font-family: 'Montserrat', sans-serif;
+  font-optical-sizing: auto;
+}
+
+:root {
+  color-scheme: dark;
+  --cine-bg: #090b10;
+  --cine-surface: #11151d;
+  --cine-surface-raised: #181e29;
+  --cine-border: rgba(255, 255, 255, 0.09);
+  --cine-text: #f5f3ee;
+  --cine-muted: #a3a9b6;
+  --cine-gold: #f2bd55;
+  --cine-gold-light: #ffda8a;
+  --cine-red: #e45454;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--cine-bg);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% -30%, rgba(129, 83, 24, 0.22), transparent 55%), var(--cine-bg);
+  color: var(--cine-text);
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--cine-gold-light);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(242, 189, 85, 0.35);
+  color: #fff;
+}
