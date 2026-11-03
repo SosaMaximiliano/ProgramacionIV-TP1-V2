@@ -1,0 +1,349 @@
+.movie-detail-page {
+  width: min(1100px, calc(100% - 48px));
+  min-height: calc(100vh - 76px);
+  margin: 0 auto;
+  padding: 60px 0 80px;
+}
+
+.movie-detail {
+  display: grid;
+  grid-template-columns: minmax(220px, 310px) 1fr;
+  align-items: center;
+  gap: clamp(32px, 7vw, 88px);
+  padding: 0 0 58px;
+  border-bottom: 1px solid var(--cine-border);
+}
+
+.detail-poster {
+  overflow: hidden;
+  border: 1px solid var(--cine-border);
+  border-radius: 17px;
+  background: var(--cine-surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+
+.detail-poster img {
+  display: block;
+  width: 100%;
+  max-height: 450px;
+  object-fit: cover;
+}
+
+.section-kicker {
+  color: var(--cine-gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.detail-copy h1 {
+  margin: 14px 0 19px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: clamp(36px, 6vw, 61px);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.08;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.detail-tags span {
+  padding: 8px 11px;
+  border: 1px solid var(--cine-border);
+  border-radius: 8px;
+  background: var(--cine-surface);
+  color: var(--cine-muted);
+  font-size: 11px;
+}
+
+.detail-tags span:first-child {
+  border-color: rgba(242, 189, 85, 0.2);
+  color: var(--cine-gold-light);
+}
+
+.detail-synopsis {
+  max-width: 580px;
+  margin: 25px 0 28px;
+  color: var(--cine-muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.back-link {
+  color: var(--cine-gold-light);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #fff;
+}
+
+.showtimes-section {
+  padding-top: 44px;
+}
+
+.showtimes-heading h2 {
+  margin: 8px 0 22px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.showtimes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 0.3fr));
+  gap: 13px;
+}
+
+.showtime-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid var(--cine-border);
+  border-radius: 12px;
+  background: var(--cine-surface);
+}
+
+.showtime-icon {
+  display: grid;
+  width: 39px;
+  height: 39px;
+  flex: 0 0 39px;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(242, 189, 85, 0.1);
+  color: var(--cine-gold);
+  font-size: 20px;
+}
+
+.showtime-info {
+  display: grid;
+  gap: 4px;
+}
+
+.showtime-info strong {
+  color: var(--cine-text);
+  font-size: 15px;
+}
+
+.showtime-info span {
+  color: var(--cine-muted);
+  font-size: 10px;
+}
+
+.showtime-card button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+  padding: 9px 11px;
+  border: 1px solid rgba(242, 189, 85, 0.35);
+  border-radius: 8px;
+  background: rgba(242, 189, 85, 0.08);
+  color: var(--cine-gold-light);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.showtime-card button:hover {
+  background: rgba(242, 189, 85, 0.17);
+}
+
+.no-showtimes {
+  padding: 38px 0;
+  color: var(--cine-muted);
+  text-align: center;
+}
+
+.no-showtimes span {
+  color: var(--cine-gold);
+  font-size: 30px;
+}
+
+@media (max-width: 650px) {
+  .movie-detail-page {
+    width: calc(100% - 32px);
+    padding-top: 36px;
+  }
+
+  .movie-detail {
+    grid-template-columns: minmax(110px, 35%) 1fr;
+    gap: 20px;
+    padding-bottom: 34px;
+  }
+
+  .detail-copy h1 {
+    font-size: 32px;
+  }
+
+  .detail-synopsis {
+    grid-column: 1 / -1;
+    margin: 17px 0;
+    font-size: 13px;
+  }
+
+  .detail-tags {
+    gap: 5px;
+  }
+
+  .detail-tags span {
+    padding: 6px 7px;
+    font-size: 9px;
+  }
+
+  .showtime-card {
+    gap: 9px;
+    padding: 11px;
+  }
+}
+.reviews-section {
+  padding: 38px 0 12px;
+  border-bottom: 1px solid var(--cine-border);
+}
+
+.reviews-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.reviews-heading h2 {
+  margin: 8px 0 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.reviews-average {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  color: var(--cine-muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.reviews-average strong {
+  color: var(--cine-gold);
+  font-size: 21px;
+}
+
+.reviews-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.review-card {
+  padding: 17px;
+  border: 1px solid var(--cine-border);
+  border-radius: 12px;
+  background: var(--cine-surface);
+}
+
+.review-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.review-card-heading strong {
+  color: var(--cine-text);
+  font-size: 13px;
+}
+
+.review-card-heading span {
+  color: var(--cine-gold);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.review-card p {
+  margin: 12px 0 0;
+  color: var(--cine-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.review-card .review-no-comment {
+  font-style: italic;
+}
+
+.reviews-error {
+  color: #ff9b9b;
+  font-size: 13px;
+}
+
+@media (max-width: 650px) {
+  .reviews-heading {
+    align-items: flex-start;
+  }
+
+  .reviews-average strong {
+    font-size: 18px;
+  }
+}
+.review-form {
+  display: grid;
+  max-width: 560px;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.review-form label {
+  color: var(--cine-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--cine-border);
+  border-radius: 8px;
+  background: var(--cine-surface);
+  color: var(--cine-text);
+  font: inherit;
+}
+
+.review-form textarea {
+  resize: vertical;
+}
+
+.review-form button {
+  justify-self: start;
+  padding: 10px 15px;
+  border: 1px solid rgba(242, 189, 85, 0.35);
+  border-radius: 8px;
+  background: rgba(242, 189, 85, 0.1);
+  color: var(--cine-gold-light);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.review-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.review-login-message,
+.review-message {
+  color: var(--cine-muted);
+  font-size: 13px;
+}
+
+.review-message:empty {
+  display: none;
+}

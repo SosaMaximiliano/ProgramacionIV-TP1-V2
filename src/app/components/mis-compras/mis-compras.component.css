@@ -1,0 +1,218 @@
+.purchases-page {
+  width: min(960px, calc(100% - 48px));
+  min-height: calc(100vh - 76px);
+  margin: 0 auto;
+  padding: 48px 0 76px;
+}
+
+.purchases-heading {
+  margin-bottom: 28px;
+}
+
+.section-kicker {
+  color: var(--cine-gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.purchases-heading h1 {
+  margin: 9px 0 5px;
+  color: var(--cine-text);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: clamp(31px, 5vw, 45px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+
+.purchases-heading p,
+.purchase-date {
+  margin: 0;
+  color: var(--cine-muted);
+  font-size: 13px;
+}
+
+.purchases-list {
+  display: grid;
+  gap: 18px;
+}
+
+.purchase-card,
+.purchases-message {
+  padding: 24px;
+  border: 1px solid var(--cine-border);
+  border-radius: 16px;
+  background: var(--cine-surface);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 14%);
+}
+
+.purchase-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.purchase-label {
+  color: var(--cine-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.purchase-header h2 {
+  margin: 5px 0 0;
+  color: var(--cine-text);
+  font-size: 20px;
+}
+
+.purchase-total {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+}
+
+.purchase-total span {
+  color: var(--cine-muted);
+  font-size: 11px;
+}
+
+.purchase-total strong {
+  color: var(--cine-gold-light);
+  font-size: 20px;
+}
+
+.purchase-date {
+  margin-top: 14px;
+}
+
+.tickets-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cine-border);
+}
+
+.tickets-section h3 {
+  margin: 0 0 10px;
+  color: var(--cine-text);
+  font-size: 14px;
+}
+
+.ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--cine-border);
+}
+
+.ticket-row:last-child {
+  border-bottom: 0;
+}
+
+.ticket-seat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.seat-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgb(242 189 85 / 30%);
+  border-radius: 9px;
+  background: rgb(242 189 85 / 8%);
+  color: var(--cine-gold-light);
+  font-size: 18px;
+}
+
+.ticket-seat div {
+  display: grid;
+  gap: 4px;
+}
+
+.ticket-seat strong {
+  color: var(--cine-text);
+  font-size: 13px;
+}
+
+.ticket-seat div span {
+  color: var(--cine-muted);
+  font-size: 11px;
+}
+
+.ticket-price {
+  color: var(--cine-text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.purchases-message {
+  display: grid;
+  min-height: 210px;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.purchases-message h2 {
+  margin: 10px 0 5px;
+  color: var(--cine-text);
+  font-size: 18px;
+}
+
+.purchases-message p {
+  margin: 0;
+  color: var(--cine-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.empty-icon,
+.loading-mark {
+  color: var(--cine-gold);
+  font-size: 30px;
+}
+
+.loading-mark {
+  animation: turn 1.2s linear infinite;
+}
+
+.error-message {
+  border-color: rgb(228 84 84 / 35%);
+}
+
+.error-message h2 {
+  color: #ffaaaa;
+}
+
+@keyframes turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-mark {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .purchases-page {
+    width: calc(100% - 32px);
+    padding-top: 36px;
+  }
+
+  .purchase-card,
+  .purchases-message {
+    padding: 19px;
+  }
+
+  .purchase-total strong {
+    font-size: 17px;
+  }
+}

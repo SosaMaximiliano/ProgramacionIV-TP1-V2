@@ -1,0 +1,31 @@
+@import '../login-component/login.component.css';
+
+.register-card {
+  width: min(620px, 100%);
+  align-content: start;
+  padding-top: 34px;
+  padding-bottom: 34px;
+}
+
+.register-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+
+.register-form .auth-message,
+.register-form .auth-submit {
+  grid-column: 1 / -1;
+}
+
+.success-message {
+  margin: 22px 0 12px;
+  color: #9be2b8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .register-form {
+    grid-template-columns: 1fr;
+  }
+}

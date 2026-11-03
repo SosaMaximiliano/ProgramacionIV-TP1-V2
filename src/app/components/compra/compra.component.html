@@ -1,0 +1,122 @@
+<main class="checkout-page">
+  <header class="checkout-heading">
+    <span class="section-kicker">TU NOCHE DE CINE</span>
+    <h1>Revisá tu compra</h1>
+    <p>Confirmá los datos antes de continuar.</p>
+  </header>
+
+  @if (funcion && butacas.length > 0) {
+    <div class="checkout-layout">
+      <section class="checkout-card">
+        <span class="section-kicker">FUNCIÓN</span>
+        <h2>{{ nombrePelicula || 'Película seleccionada' }}</h2>
+
+        <div class="showtime-details">
+          <div>
+            <span>Fecha</span>
+            <strong>{{ funcion.fecha }}</strong>
+          </div>
+          <div>
+            <span>Horario</span>
+            <strong>{{ funcion.hora }}</strong>
+          </div>
+          <div>
+            <span>Sala</span>
+            <strong>{{ funcion.salaId }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="checkout-card">
+        <span class="section-kicker">ENTRADAS</span>
+        <h2>{{ butacas.length }} butacas seleccionadas</h2>
+
+        <ul class="ticket-list">
+          @for (butaca of butacas; track butaca.id) {
+            <li>
+              <div class="ticket-seat">
+                <span class="seat-badge" [class.vip]="butaca.tipo === 'vip'">
+                  {{ butaca.fila }}{{ butaca.numero }}
+                </span>
+                <span>{{ butaca.tipo === 'vip' ? 'Butaca VIP' : 'Butaca general' }}</span>
+              </div>
+              <strong>{{ precioButaca(butaca) | currency: 'ARS' }}</strong>
+            </li>
+          }
+        </ul>
+
+        <div class="checkout-total">
+          <span>Total</span>
+          <strong>{{ total | currency: 'ARS' }}</strong>
+        </div>
+
+        @if (!compraConfirmada()) {
+          <fieldset class="payment-methods">
+            <legend>Método de pago de prueba</legend>
+            <button
+              type="button"
+              class="payment-option"
+              [class.selected]="metodoPago() === formasPago.Debito"
+              (click)="metodoPago.set(formasPago.Debito)"
+            >
+              <span>Débito</span><small>Simulado</small>
+            </button>
+            <button
+              type="button"
+              class="payment-option"
+              [class.selected]="metodoPago() === formasPago.Credito"
+              (click)="metodoPago.set(formasPago.Credito)"
+            >
+              <span>Crédito</span><small>Simulado</small>
+            </button>
+            <button
+              type="button"
+              class="payment-option"
+              [class.selected]="metodoPago() === formasPago.Efectivo"
+              (click)="metodoPago.set(formasPago.Efectivo)"
+            >
+              <span>Efectivo</span><small>Simulado</small>
+            </button>
+            <button
+              type="button"
+              class="payment-option"
+              [class.selected]="metodoPago() === formasPago.Transferencia"
+              (click)="metodoPago.set(formasPago.Transferencia)"
+            >
+              <span>Transferencia</span><small>Simulada</small>
+            </button>
+          </fieldset>
+
+          <p class="checkout-note">
+            La confirmación es de prueba: no se realiza ningún cobro real.
+          </p>
+
+          @if (errorCompra()) {
+            <p class="checkout-error" role="alert">{{ errorCompra() }}</p>
+          }
+
+          <button
+            type="button"
+            class="primary-action"
+            [disabled]="metodoPago() === null || procesando()"
+            (click)="confirmarCompra()"
+          >
+            {{ procesando() ? 'Registrando compra…' : 'Aceptar pago de prueba' }}
+            @if (!procesando()) {
+              <span aria-hidden="true">→</span>
+            }
+          </button>
+        } @else {
+          <p class="checkout-success" role="status">
+            Compra de prueba registrada y entradas creadas. El QR se agregará más adelante.
+          </p>
+        }
+      </section>
+    </div>
+  } @else {
+    <section class="checkout-card empty-state">
+      <h2>No encontramos una selección</h2>
+      <p>Volvé al mapa de butacas y elegí tus lugares para continuar.</p>
+    </section>
+  }
+</main>

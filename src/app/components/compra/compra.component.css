@@ -1,0 +1,237 @@
+.checkout-page {
+  width: min(960px, calc(100% - 48px));
+  min-height: calc(100vh - 76px);
+  margin: 0 auto;
+  padding: 48px 0 76px;
+}
+
+.section-kicker {
+  color: var(--cine-gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.checkout-heading {
+  margin-bottom: 28px;
+}
+
+.checkout-heading h1 {
+  margin: 9px 0 5px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: clamp(31px, 5vw, 45px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+
+.checkout-heading p {
+  margin: 0;
+  color: var(--cine-muted);
+  font-size: 13px;
+}
+
+.checkout-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.checkout-card {
+  padding: 24px;
+  border: 1px solid var(--cine-border);
+  border-radius: 16px;
+  background: var(--cine-surface);
+}
+
+.checkout-card h2 {
+  margin: 9px 0 18px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 19px;
+}
+
+.showtime-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.showtime-details div {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid var(--cine-border);
+  border-radius: 10px;
+  background: var(--cine-surface-raised);
+}
+
+.showtime-details span {
+  color: var(--cine-muted);
+  font-size: 11px;
+}
+
+.showtime-details strong {
+  font-size: 13px;
+}
+
+.ticket-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticket-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--cine-border);
+}
+
+.ticket-seat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cine-muted);
+  font-size: 12px;
+}
+
+.seat-badge {
+  min-width: 42px;
+  padding: 7px 9px;
+  border: 1px solid rgba(242, 189, 85, 0.3);
+  border-radius: 7px;
+  background: rgba(242, 189, 85, 0.08);
+  color: var(--cine-gold-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.seat-badge.vip {
+  border-color: rgba(242, 189, 85, 0.65);
+  background: rgba(242, 189, 85, 0.17);
+}
+
+.ticket-list li > strong {
+  color: var(--cine-text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cine-border);
+  font-size: 14px;
+}
+
+.checkout-total strong {
+  color: var(--cine-gold-light);
+  font-size: 20px;
+}
+
+.checkout-note {
+  margin: 17px 0;
+  color: var(--cine-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.payment-methods {
+  display: grid;
+  gap: 9px;
+  margin: 20px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.payment-methods legend {
+  margin-bottom: 10px;
+  color: var(--cine-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--cine-border);
+  border-radius: 9px;
+  background: var(--cine-surface-raised);
+  color: var(--cine-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.payment-option.selected {
+  border-color: var(--cine-gold);
+  background: rgba(242, 189, 85, 0.1);
+}
+
+.payment-option small {
+  color: var(--cine-muted);
+  font-size: 10px;
+}
+
+.checkout-error {
+  color: #ff9b9b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.checkout-success {
+  padding: 14px;
+  border: 1px solid rgba(107, 212, 208, 0.35);
+  border-radius: 9px;
+  background: rgba(107, 212, 208, 0.08);
+  color: #a4e6e1;
+  font-size: 13px;
+}
+
+.primary-action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1px solid rgba(242, 189, 85, 0.45);
+  border-radius: 9px;
+  background: var(--cine-gold);
+  color: #17120a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.empty-state p {
+  color: var(--cine-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .checkout-page {
+    width: calc(100% - 32px);
+    padding-top: 36px;
+  }
+
+  .checkout-card {
+    padding: 19px;
+  }
+
+  .showtime-details {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,247 @@
+<main class="booking-page">
+  @if (errorCarga) {
+    <div class="payment-success">{{ errorCarga }}</div>
+  } @else {
+    <header class="booking-heading">
+      <span class="section-kicker">TU NOCHE DE CINE</span>
+      <h1>Elegí tus butacas</h1>
+      <p>
+        Función #{{ funcionId }} <span aria-hidden="true">·</span>
+        {{ nombrePelicula || 'Cine Cinéfila' }}
+      </p>
+    </header>
+
+    <div class="booking-layout">
+      <section class="seat-panel">
+        <div class="screen-wrap">
+          <div class="screen"></div>
+          <span>PANTALLA</span>
+        </div>
+
+        <div class="seat-legend">
+          <span><i class="legend-seat available"></i> Disponible</span>
+          <span><i class="legend-seat selected"></i> Seleccionada</span>
+          <span><i class="legend-seat occupied"></i> Ocupada</span>
+        </div>
+
+        <div class="seat-map">
+          @for (fila of filasButacas(); track fila.letra) {
+            <div
+              class="seat-row"
+              [class.fila-accesible]="fila.tipo === 'accesible'"
+              [class.fila-vip]="fila.tipo === 'vip'"
+            >
+              <span class="seat-row-label">{{ fila.letra }}</span>
+              @for (bloque of fila.bloques; track $index) {
+                <div class="seat-block">
+                  @for (butaca of bloque; track butaca.id) {
+                    <button
+                      class="butaca-seat"
+                      [disabled]="estaOcupada(butaca.id)"
+                      /* [disabled]="estaOcupada(butaca.id) || ventaCreada !== null" */
+                      [class.seleccionada]="estaSeleccionada(butaca.id)"
+                      (click)="seleccionarButaca(butaca)"
+                      [attr.aria-label]="
+                        'Fila ' + butaca.fila + ', asiento ' + butaca.numero + ', ' + butaca.tipo
+                      "
+                    >
+                      {{ butaca.numero }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <aside class="order-panel">
+        <span class="section-kicker">RESUMEN</span>
+        <!-- @if (edadMinima() > 0) {
+          <section class="age-check">
+            <h2>Validación de edad</h2>
+            <p>Esta película tiene una edad mínima de {{ edadMinima() }} años.</p>
+
+            @if (fechaNacimientoPerfil()) {
+              <p>Usamos la fecha de nacimiento registrtada en tu perfil.</p>
+            } @else {
+              <form [formGroup]="formularioEdad">
+                <label class="form-field">
+                  Fecha de nacimiento
+                  <input type="date" formControlName="fechaNacimiento" />
+                </label>
+
+                @if (
+                  formularioEdad.controls.fechaNacimiento.touched &&
+                  formularioEdad.controls.fechaNacimiento.hasError('required')
+                ) {
+                  <p class="payment-error" role="alert">Ingresá tu fecha de nacimiento.</p>
+                }
+
+                @if (
+                  formularioEdad.controls.fechaNacimiento.touched &&
+                  formularioEdad.controls.fechaNacimiento.hasError('fechaFutura')
+                ) {
+                  <p class="payment-error" role="alert">La fecha no puede ser futura.</p>
+                }
+
+                @if (
+                  formularioEdad.controls.fechaNacimiento.touched &&
+                  formularioEdad.controls.fechaNacimiento.hasError('edadMinima')
+                ) {
+                  <p class="payment-error" role="alert">
+                    La edad ingresada no alcanza el mínimo de {{ edadMinima() }} años.
+                  </p>
+                }
+              </form>
+            }
+
+            @if (
+              fechaNacimientoPerfil() &&
+              formularioEdad.controls.fechaNacimiento.hasError('edadMinima')
+            ) {
+              <p class="payment-error" role="alert">
+                Tu perfil indica que no alcanzás la edad mínima de {{ edadMinima() }} años.
+              </p>
+            }
+          </section>
+        } -->
+
+        @if (butacasSeleccionadas().length > 0) {
+          <h2>Tus butacas</h2>
+          <div class="selected-seats">
+            @for (butaca of butacasSeleccionadas(); track butaca.id) {
+              <span>{{ butaca.fila }}{{ butaca.numero }}</span>
+            }
+          </div>
+          <p class="seat-count">
+            {{ butacasSeleccionadas().length }}
+            {{
+              butacasSeleccionadas().length === 1
+                ? 'entrada seleccionada'
+                : 'entradas seleccionadas'
+            }}
+          </p>
+          <button class="primary-action" (click)="mostrarOcultarResumen()">
+            Continuar <span aria-hidden="true">→</span>
+          </button>
+        } @else {
+          <h2>Elegí tu lugar</h2>
+          <p class="order-hint">Seleccioná una o más butacas en el mapa para continuar.</p>
+        }
+
+        <!-- @if (entradas.length > 0) {
+          <div class="order-divider"></div>
+          <h2>Tu compra</h2>
+          <p class="order-movie">{{ nombrePelicula }}</p>
+          <p class="order-showtime">{{ funcion?.fecha }} · {{ funcion?.hora }}</p>
+          <ul class="ticket-list">
+            @for (e of entradas; track e.id) {
+              <li>
+                <span>Fila {{ e.fila }}, asiento {{ e.asiento }}</span
+                ><strong>{{ e.precio | currency: 'ARS' }}</strong>
+              </li>
+            }
+          </ul>
+          <div class="order-total">
+            <span>Subtotal</span><strong>{{ ventaCreada?.subtotal | currency: 'ARS' }}</strong>
+          </div>
+          @if (ventaCreada?.descuentoImporte) {
+            <div class="order-total">
+              <span>Descuento de primera compra ({{ ventaCreada?.descuentoPorcentaje }}%)</span>
+              <strong>-{{ ventaCreada?.descuentoImporte | currency: 'ARS' }}</strong>
+            </div>
+          }
+          <div class="order-total">
+            <span>Total</span><strong>{{ ventaCreada?.precioFinal | currency: 'ARS' }}</strong>
+          </div>
+        } -->
+        <div class="botones-operacion">
+          <!-- @if (ventaCreada && !ventaCreada.estaPagado) {
+            @if (errorPago()) {
+              <p class="payment-error" role="alert">{{ errorPago() }}</p>
+            }
+            <button
+              class="secondary-action"
+              [disabled]="pagoProcesando()"
+              (click)="cancelarCompra()"
+            >
+              Cancelar operación
+            </button>
+            <button class="primary-action" [disabled]="pagoProcesando()" (click)="confirmarPago()">
+              {{ pagoProcesando() ? 'Registrando compra…' : 'Confirmar pago' }}
+              @if (!pagoProcesando()) {
+                <span aria-hidden="true">→</span>
+              }
+            </button>
+          } -->
+        </div>
+
+        <!-- @if (ventaCreada?.estaPagado) {
+          <p class="payment-success">
+            <span aria-hidden="true">✓</span> Pago confirmado. Tus entradas fueron emitidas.
+          </p>
+        } -->
+      </aside>
+    </div>
+  }
+
+  @if (mostrarResumen()) {
+    <div class="modal-backdrop" (click)="mostrarOcultarResumen()">
+      <section
+        class="purchase-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="purchase-modal-title"
+        (click)="$event.stopPropagation()"
+      >
+        <button
+          type="button"
+          class="modal-close"
+          aria-label="Cerrar resumen"
+          (click)="mostrarOcultarResumen()"
+        >
+          ×
+        </button>
+
+        <span class="section-kicker">RESUMEN DE COMPRA</span>
+        <h2 id="purchase-modal-title">{{ nombrePelicula || 'Tu función' }}</h2>
+
+        @if (funcion) {
+          <p>Función: {{ funcion.fecha }} · {{ funcion.hora }}</p>
+        }
+
+        <h3>Butacas seleccionadas</h3>
+        <ul>
+          @for (butaca of butacasSeleccionadas(); track butaca.id) {
+            <li>
+              Fila {{ butaca.fila }}, asiento {{ butaca.numero }}
+              <span>{{ butaca.tipo }}</span>
+              <span>{{ precioButaca(butaca) | currency: '$' }}</span>
+            </li>
+          }
+          <p class="order-total">
+            <span>Total</span>
+            <strong>{{ totalSeleccionado() | currency: 'ARS' }}</strong>
+          </p>
+        </ul>
+
+        @if (haySesionActiva()) {
+          <button type="button" class="primary-action" (click)="continuarCompra()">
+            Continuar a la compra
+          </button>
+        } @else {
+          @if (mensajeAcceso()) {
+            <p class="payment-error" role="alert">{{ mensajeAcceso() }}</p>
+          }
+
+          <button type="button" class="primary-action" (click)="irAIngresar()">Ingresar</button>
+
+          <button type="button" class="primary-action" (click)="seguirComoInvitado()">
+            Seguir como invitado
+          </button>
+        }
+      </section>
+    </div>
+  }
+</main>

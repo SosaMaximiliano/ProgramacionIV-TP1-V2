@@ -1,0 +1,27 @@
+<nav class="cine-navbar">
+  <div class="navbar-inner">
+    <a class="brand" routerLink="/inicio" aria-label="Cinéfila, inicio">
+      <span class="brand-mark" aria-hidden="true">✦</span>
+      <span class="brand-name">CINÉFILA</span>
+    </a>
+
+    <div class="nav-links" aria-label="Navegación principal">
+      <a class="nav-link" routerLink="/inicio">Inicio</a>
+      <a class="nav-link" routerLink="/cartelera">Cartelera</a>
+    </div>
+
+    <div class="nav-actions">
+      @if (supabaseService.usuarioActual() && !supabaseService.usuarioActual()?.is_anonymous) {
+        <span class="nav-user">{{ supabaseService.usuarioActual()?.email }}</span>
+        <a class="nav-login" routerLink="/mis-compras">Mis compras</a>
+        <button class="nav-cta" type="button" (click)="cerrarSesion()">Salir</button>
+      } @else {
+        <a class="nav-login" routerLink="/login">Ingresar</a>
+        <a class="nav-cta" routerLink="/registro">Crear cuenta</a>
+      }
+    </div>
+  </div>
+  @if (mensaje) {
+    <p class="nav-error" role="alert">{{ mensaje }}</p>
+  }
+</nav>

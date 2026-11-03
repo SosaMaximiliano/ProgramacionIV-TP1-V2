@@ -1,0 +1,19 @@
+<article class="pelicula-container">
+  <div class="imagen-container">
+    <img [src]="pelicula.imagen" [alt]="'Póster de ' + pelicula.nombre" />
+  </div>
+
+  <div class="pelicula-info">
+    <span class="genero">{{ pelicula.genero }}</span>
+    <h2>{{ pelicula.nombre }}</h2>
+
+    <div class="detalles">
+      <span>{{ pelicula.clasificacionEdad }}</span>
+      <span>Estreno: {{ pelicula.fechaEstreno }}</span>
+    </div>
+
+    <a class="hero-button" (click)="emitirSeleccion()">
+      Ver detalle <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</article>

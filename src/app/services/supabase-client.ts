@@ -14,7 +14,11 @@ export function getSupabaseClient(): Promise<SupabaseClient> {
 
   if (!supabaseClient) {
     supabaseClient = import('@supabase/supabase-js').then(({ createClient }) =>
-      createClient(environment.supabaseUrl, environment.supabasePublishableKey),
+      createClient(environment.supabaseUrl, environment.supabasePublishableKey, {
+        auth: {
+          persistSession: false,
+        },
+      }),
     );
   }
 

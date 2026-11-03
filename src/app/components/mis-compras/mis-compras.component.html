@@ -1,0 +1,66 @@
+<main class="purchases-page">
+  <header class="purchases-heading">
+    <span class="section-kicker">TU CUENTA</span>
+    <h1>Mis compras</h1>
+    <p>Consultá tus ventas y las entradas asociadas.</p>
+  </header>
+
+  @if (cargando()) {
+    <section class="purchases-message">
+      <span class="loading-mark" aria-hidden="true">◌</span>
+      <p>Cargando tus compras...</p>
+    </section>
+  } @else if (error()) {
+    <section class="purchases-message error-message" role="alert">
+      <h2>No pudimos cargar tus compras</h2>
+      <p>{{ error() }}</p>
+    </section>
+  } @else if (misCompras().length === 0) {
+    <section class="purchases-message">
+      <span class="empty-icon" aria-hidden="true">✦</span>
+      <h2>Todavía no tenés compras</h2>
+      <p>Cuando completes una compra, vas a encontrarla acá.</p>
+    </section>
+  } @else {
+    <div class="purchases-list">
+      @for (venta of misCompras(); track venta.id) {
+        <article class="purchase-card">
+          <header class="purchase-header">
+            <div>
+              <span class="purchase-label">COMPRA</span>
+              <h2>#{{ venta.id }}</h2>
+              @if (venta.entradas[0]?.funcion; as funcion) {
+                <p class="purchase-movie">{{ funcion.pelicula?.nombre }}</p>
+                <p>{{ funcion.fecha }} · {{ funcion.hora }}</p>
+              }
+            </div>
+
+            <div class="purchase-total">
+              <span>Total</span>
+              <strong>{{ venta.precioFinal | currency: '$' }}</strong>
+            </div>
+          </header>
+
+          <div class="tickets-section">
+            <h3>Entradas</h3>
+
+            @for (entrada of venta.entradas; track entrada.id) {
+              <section class="ticket-row">
+                @if (entrada.funcion) {}
+                <div class="ticket-seat">
+                  <span class="seat-icon" aria-hidden="true">▦</span>
+                  <div>
+                    <strong>Fila {{ entrada.fila }}, asiento {{ entrada.asiento }}</strong>
+                    <span>Entrada emitida</span>
+                  </div>
+                </div>
+
+                <strong class="ticket-price">{{ entrada.precio | currency: '$' }}</strong>
+              </section>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</main>
