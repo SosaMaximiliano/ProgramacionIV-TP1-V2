@@ -29,4 +29,15 @@ export type CompraVista = Pick<Venta, 'id' | 'fechaVenta' | 'precioFinal'> & {
       pelicula: { nombre: string } | null;
     } | null;
   })[];
+  productos: ProductoCompraVista[];
 };
+
+export interface ProductoCompraVista {
+  id: number;
+  productoId: string;
+  nombre: string;
+  categoria: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}

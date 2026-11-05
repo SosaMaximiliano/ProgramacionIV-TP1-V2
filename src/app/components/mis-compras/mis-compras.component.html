@@ -58,6 +58,18 @@
                 <strong class="ticket-price">{{ entrada.precio | currency: '$' }}</strong>
               </section>
             }
+            @if (venta.productos.length > 0) {
+              <section class="products-section">
+                <h3>Candy Bar</h3>
+
+                @for (producto of venta.productos; track producto.id) {
+                  <div class="product-row">
+                    <span>{{ producto.nombre }} × {{ producto.cantidad }}</span>
+                    <strong>{{ producto.subtotal | currency: 'ARS' }}</strong>
+                  </div>
+                }
+              </section>
+            }
           </div>
         </article>
       }

@@ -4,6 +4,7 @@ import { getSupabaseClient } from './supabase-client';
 
 @Service()
 export class FuncionService {
+  //
   async obtenerTodas(): Promise<Funcion[]> {
     const supabase = await getSupabaseClient();
     const { data, error } = await supabase.from('funciones').select('*').order('id');

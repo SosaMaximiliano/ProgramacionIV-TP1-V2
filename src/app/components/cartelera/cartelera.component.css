@@ -37,13 +37,17 @@
 
 .busqueda {
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   width: min(1200px, calc(100% - 48px));
   margin: 16px auto 20px;
 }
 
 .busqueda input {
   width: min(420px, 100%);
-  height: 48px;
+  height: 42px;
   padding: 0 16px 0 44px;
   border: 1px solid var(--cine-border);
   border-radius: 12px;
@@ -53,6 +57,26 @@
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
+}
+
+.busqueda select {
+  min-width: 180px;
+  height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--cine-border);
+  border-radius: var(--cine-radius-sm);
+  background: var(--cine-surface);
+  color: var(--cine-text);
+  font-size: 13px;
+}
+
+.busqueda label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .busqueda input::placeholder {
@@ -107,5 +131,10 @@
     grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
     gap: 14px;
     padding-bottom: 48px;
+  }
+
+  .busqueda input,
+  .busqueda select {
+    width: 100%;
   }
 }

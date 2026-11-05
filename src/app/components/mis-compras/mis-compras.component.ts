@@ -1,12 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { VentaService } from '../../services/venta.service';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 
 //Crea un modelo auxiliar a partir de lo que recibe desde el método de VentaService
 type ComprasUsuario = Awaited<ReturnType<VentaService['obtenerMisCompras']>>;
 
 @Component({
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe],
   selector: 'app-mis-compras-component',
   styleUrl: './mis-compras.component.css',
   templateUrl: './mis-compras.component.html',

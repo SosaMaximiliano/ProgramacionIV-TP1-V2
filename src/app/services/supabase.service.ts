@@ -1,7 +1,8 @@
 import { Usuario, DatosRegistro } from './../models/usuario.model';
-import { Service, signal } from '@angular/core';
+import { Service, signal, inject } from '@angular/core';
 import { User } from '@supabase/supabase-js';
 import { getSupabaseClient } from './supabase-client';
+import { CarritoService } from './carrito.service';
 
 export interface Profile {
   id?: string;
@@ -12,9 +13,11 @@ export interface Profile {
 
 @Service()
 export class SupabaseService {
+  carritoService = inject(CarritoService);
   readonly usuarioActual = signal<User | null>(null);
 
   async iniciarSesion(correo: string, password: string) {
+    this.carritoService.limpiar();
     const supabase = await getSupabaseClient();
     const { data, error } = await supabase.auth.signInWithPassword({
       email: correo,
@@ -26,6 +29,8 @@ export class SupabaseService {
   }
 
   async iniciarSesionInvitado(): Promise<void> {
+    this.carritoService.limpiar();
+
     const supabase = await getSupabaseClient();
     const { data, error } = await supabase.auth.signInAnonymously();
 
@@ -58,6 +63,8 @@ export class SupabaseService {
   }
 
   async cerrarSesion() {
+    this.carritoService.limpiar();
+
     const supabase = await getSupabaseClient();
     const { error } = await supabase.auth.signOut({ scope: 'local' });
 

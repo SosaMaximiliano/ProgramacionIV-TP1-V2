@@ -10,7 +10,7 @@ export const PELICULA_ROUTES: Routes = [
   {
     path: ':id',
     loadComponent: () =>
-      import('../detalle-pelicula-component/detalle-pelicula.component').then(
+      import('../detalle-pelicula/detalle-pelicula.component').then(
         (m) => m.DetallePeliculaComponent,
       ),
   },

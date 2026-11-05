@@ -1,19 +1,11 @@
-* {
-  background-color: #0c0f14;
-}
-
 :host {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  background-color: #0c0f14;
-  color: antiquewhite;
+  background: var(--cine-bg);
+  color: var(--cine-text);
 }
 
 router-outlet {
   display: contents;
-}
-
-hr {
-  display: none;
 }

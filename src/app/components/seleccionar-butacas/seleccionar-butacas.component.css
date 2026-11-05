@@ -125,8 +125,8 @@
 }
 
 .booking-layout {
-  /* display: grid; */
-  grid-template-columns: minmax(0, 1fr) 300px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 20px;
 }
@@ -139,8 +139,8 @@
 }
 
 .seat-panel {
-  min-width: fit-content;
-  /* overflow: auto; */
+  min-width: max-content;
+  overflow-x: auto;
   padding: 26px 20px 30px;
 }
 
@@ -296,16 +296,18 @@
 
 .primary-action {
   display: flex;
-  margin: 20px 0;
-  width: 40%;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 40px;
+  margin: 12px 0;
   align-items: center;
   justify-content: center;
-  padding: 13px 14px;
+  padding: 9px 14px;
   border: 0;
   border-radius: 9px;
   background: var(--cine-gold);
   color: #17120a;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   cursor: pointer;
   transition:
@@ -421,10 +423,6 @@
 }
 
 @media (max-width: 850px) {
-  .booking-layout {
-    grid-template-columns: 1fr;
-  }
-
   .order-panel {
     max-width: none;
   }
@@ -436,15 +434,13 @@
     padding-top: 34px;
   }
 
-  .seat-panel {
-    padding: 22px 12px;
+  .seat-panel { padding: 22px 12px; }
+
+  .booking-layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .seat-map {
-    justify-content: start;
-    margin-left: 0;
-    margin-right: 0;
-  }
+  .seat-map { justify-content: start; margin-left: 0; margin-right: 0; }
 
   .seat-legend {
     gap: 10px;
@@ -505,4 +501,80 @@
 .modal-note {
   color: var(--cine-muted);
   font-size: 13px;
+}
+
+.age-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 72%);
+}
+
+.age-modal {
+  width: min(100%, 480px);
+  padding: 28px;
+  border: 1px solid var(--cine-border);
+  border-radius: 16px;
+  background: var(--cine-surface);
+  color: var(--cine-text);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+}
+
+.age-modal h2 {
+  margin: 12px 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 22px;
+}
+
+.age-modal p {
+  color: var(--cine-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.age-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.age-modal-actions button {
+  min-height: 40px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.age-modal-primary {
+  border: 1px solid var(--cine-gold);
+  background: var(--cine-gold);
+  color: #17120a;
+}
+
+.age-modal-secondary {
+  border: 1px solid var(--cine-border);
+  background: transparent;
+  color: var(--cine-text);
+}
+
+@media (max-width: 520px) {
+  .age-modal {
+    padding: 22px;
+  }
+
+  .age-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .age-modal-actions button {
+    width: 100%;
+  }
 }

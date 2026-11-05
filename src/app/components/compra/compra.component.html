@@ -45,9 +45,38 @@
           }
         </ul>
 
+        <div>
+          <button type="button" class="primary-action" routerLink="/candy-bar">
+            Agregar productos del Candy Bar
+          </button>
+          <ul>
+            @for (item of carritoService.carrito(); track item.producto.id) {
+              <li>
+                <span>{{ item.producto.nombre }}</span>
+                <span>Cantidad: {{ item.cantidad }}</span>
+                <span>
+                  {{ subtotalProducto(item.producto.precio, item.cantidad) | currency: 'ARS' }}
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+
         <div class="checkout-total">
-          <span>Total</span>
-          <strong>{{ total | currency: 'ARS' }}</strong>
+          <span>Subtotal</span>
+          <strong>{{ totalCompra() | currency: 'ARS' }}</strong>
+        </div>
+
+        @if (descuentoPorcentaje() > 0) {
+          <div class="checkout-total">
+            <span>Descuento primera compra ({{ descuentoPorcentaje() }} %)</span>
+            <strong>-{{ importeDescuento() | currency: 'ARS' }}</strong>
+          </div>
+        }
+
+        <div class="checkout-total">
+          <span>Total a pagar</span>
+          <strong>{{ totalConDescuento() | currency: 'ARS' }}</strong>
         </div>
 
         @if (!compraConfirmada()) {
@@ -106,10 +135,33 @@
               <span aria-hidden="true">→</span>
             }
           </button>
-        } @else {
-          <p class="checkout-success" role="status">
-            Compra de prueba registrada y entradas creadas. El QR se agregará más adelante.
-          </p>
+        }
+        @if (mostrarModalQr()) {
+          <div class="modal-backdrop" (click)="cerrarModalQr()">
+            <section
+              class="modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-titulo"
+              (click)="$event.stopPropagation()"
+            >
+              <h2 id="modal-titulo">¡Compra confirmada!</h2>
+              <p>Tus entradas se generaron correctamente.</p>
+
+              @if (qrImagen()) {
+                <img class="purchase-qr" [src]="qrImagen()" alt="Código QR de la compra" />
+                <p>Referencia de compra #{{ ventaId() }}</p>
+              } @else if (errorQr()) {
+                <p class="checkout-error" role="alert">{{ errorQr() }}</p>
+              } @else {
+                <p>Generando el código QR…</p>
+              }
+
+              <button type="button" class="primary-action" (click)="cerrarModalQr()">
+                Volver al inicio
+              </button>
+            </section>
+          </div>
         }
       </section>
     </div>

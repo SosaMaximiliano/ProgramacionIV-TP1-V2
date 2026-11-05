@@ -62,7 +62,7 @@
             <h2>Validación de edad</h2>
             <p>Esta película tiene una edad mínima de {{ edadMinima() }} años.</p>
 
-            @if (fechaNacimientoPerfil()) {
+            @if (noCumpleEdadMinima()) {
               <p>Usamos la fecha de nacimiento registrtada en tu perfil.</p>
             } @else {
               <form [formGroup]="formularioEdad">
@@ -129,59 +129,6 @@
           <h2>Elegí tu lugar</h2>
           <p class="order-hint">Seleccioná una o más butacas en el mapa para continuar.</p>
         }
-
-        <!-- @if (entradas.length > 0) {
-          <div class="order-divider"></div>
-          <h2>Tu compra</h2>
-          <p class="order-movie">{{ nombrePelicula }}</p>
-          <p class="order-showtime">{{ funcion?.fecha }} · {{ funcion?.hora }}</p>
-          <ul class="ticket-list">
-            @for (e of entradas; track e.id) {
-              <li>
-                <span>Fila {{ e.fila }}, asiento {{ e.asiento }}</span
-                ><strong>{{ e.precio | currency: 'ARS' }}</strong>
-              </li>
-            }
-          </ul>
-          <div class="order-total">
-            <span>Subtotal</span><strong>{{ ventaCreada?.subtotal | currency: 'ARS' }}</strong>
-          </div>
-          @if (ventaCreada?.descuentoImporte) {
-            <div class="order-total">
-              <span>Descuento de primera compra ({{ ventaCreada?.descuentoPorcentaje }}%)</span>
-              <strong>-{{ ventaCreada?.descuentoImporte | currency: 'ARS' }}</strong>
-            </div>
-          }
-          <div class="order-total">
-            <span>Total</span><strong>{{ ventaCreada?.precioFinal | currency: 'ARS' }}</strong>
-          </div>
-        } -->
-        <div class="botones-operacion">
-          <!-- @if (ventaCreada && !ventaCreada.estaPagado) {
-            @if (errorPago()) {
-              <p class="payment-error" role="alert">{{ errorPago() }}</p>
-            }
-            <button
-              class="secondary-action"
-              [disabled]="pagoProcesando()"
-              (click)="cancelarCompra()"
-            >
-              Cancelar operación
-            </button>
-            <button class="primary-action" [disabled]="pagoProcesando()" (click)="confirmarPago()">
-              {{ pagoProcesando() ? 'Registrando compra…' : 'Confirmar pago' }}
-              @if (!pagoProcesando()) {
-                <span aria-hidden="true">→</span>
-              }
-            </button>
-          } -->
-        </div>
-
-        <!-- @if (ventaCreada?.estaPagado) {
-          <p class="payment-success">
-            <span aria-hidden="true">✓</span> Pago confirmado. Tus entradas fueron emitidas.
-          </p>
-        } -->
       </aside>
     </div>
   }
@@ -231,6 +178,21 @@
             Continuar a la compra
           </button>
         } @else {
+          @if (edadMinima() > 0) {
+            <form [formGroup]="formularioEdad">
+              <label class="form-field">
+                Fecha de nacimiento
+                <input type="date" formControlName="fechaNacimiento" />
+              </label>
+
+              @if (
+                formularioEdad.controls.fechaNacimiento.touched &&
+                formularioEdad.controls.fechaNacimiento.hasError('required')
+              ) {
+                <p class="payment-error" role="alert">Ingresá tu fecha de nacimiento.</p>
+              }
+            </form>
+          }
           @if (mensajeAcceso()) {
             <p class="payment-error" role="alert">{{ mensajeAcceso() }}</p>
           }
@@ -241,6 +203,30 @@
             Seguir como invitado
           </button>
         }
+      </section>
+    </div>
+  }
+
+  @if (noCumpleEdadMinima()) {
+    <div class="age-modal-backdrop">
+      <section class="age-modal" role="dialog" aria-modal="true" aria-labelledby="age-modal-title">
+        <span class="section-kicker">RESTRICCIÓN DE EDAD</span>
+        <h2 id="age-modal-title">Debés ingresar con una persona adulta</h2>
+
+        <p>
+          La clasificación de esta película supera la edad registrada para tu perfil. Solo podés
+          ingresar si asistís acompañado por una persona adulta.
+        </p>
+
+        <div class="age-modal-actions">
+          <button type="button" class="age-modal-secondary" (click)="cancelarContinuacionEdad()">
+            Volver
+          </button>
+
+          <button type="button" class="age-modal-primary" (click)="confirmarAcompanamiento()">
+            Entiendo, ingresaré con una persona adulta
+          </button>
+        </div>
       </section>
     </div>
   }

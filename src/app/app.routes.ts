@@ -56,6 +56,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/error/error.component').then((m) => m.ErrorComponent),
   },
   {
+    path: 'candy-bar',
+    loadComponent: () =>
+      import('./components/candy-bar/candy-bar.component').then((m) => m.CandyBarComponent),
+  },
+  {
     path: '**',
     redirectTo: 'error',
   },

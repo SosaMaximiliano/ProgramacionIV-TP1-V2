@@ -16,15 +16,22 @@ export class CarteleraComponent {
   busqueda = signal('');
   cargando = signal(true);
   errorCarga = signal('');
+  generoSeleccionado = signal('');
 
   peliculasFiltradas = computed(() => {
     const texto = this.busqueda().trim().toLocaleLowerCase();
 
-    return this.peliculasObtenidas().filter(
-      (peliculasObtenidas) =>
-        peliculasObtenidas.nombre.toLocaleLowerCase().includes(texto) ||
-        peliculasObtenidas.genero.toLocaleLowerCase().includes(texto),
-    );
+    const genero = this.generoSeleccionado().toLocaleLowerCase();
+
+    return this.peliculasObtenidas().filter((pelicula) => {
+      const coincideBusqueda =
+        pelicula.nombre.toLocaleLowerCase().includes(texto) ||
+        pelicula.genero.toLocaleLowerCase().includes(texto);
+
+      const coincideGenero = !genero || pelicula.genero.toLocaleLowerCase() === genero;
+
+      return coincideBusqueda && coincideGenero;
+    });
   });
 
   constructor(
@@ -45,4 +52,10 @@ export class CarteleraComponent {
   peliculaRecibida(pelicula: Pelicula) {
     this.router.navigate(['/detalle', pelicula.id]);
   }
+
+  generos = computed(() =>
+    [...new Set(this.peliculasObtenidas().map((pelicula) => pelicula.genero))]
+      .filter(Boolean)
+      .sort(),
+  );
 }

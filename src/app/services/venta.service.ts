@@ -8,11 +8,18 @@ interface ButacaCompra {
   precio: number;
 }
 
+interface ProductoCompra {
+  productoId: string;
+  cantidad: number;
+  precioUnitario: number;
+}
+
 interface DatosCompra {
   funcionId: number;
   butacas: ButacaCompra[];
   metodoPago: FormaPago;
   total: number;
+  productos: ProductoCompra[];
 }
 
 interface EntradaDesdeSupabase {
@@ -28,46 +35,46 @@ interface EntradaDesdeSupabase {
   };
 }
 
+interface DetalleProductoDesdeSupabase {
+  id: number;
+  producto_id: string;
+  cantidad: number;
+  precio_unitario: number;
+  producto: {
+    nombre: string;
+    categoria: string;
+  } | null;
+}
+
 @Service()
 export class VentaService {
   async registrarVentaYEntradas(compra: DatosCompra): Promise<number> {
     const supabase = await getSupabaseClient();
-    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError) throw authError;
-    if (!authData.user) throw new Error('Se requiere una sesión para comprar entradas.');
+    if (!user) throw new Error('Se requiere una sesión para comprar.');
 
-    const { data: venta, error: ventaError } = await supabase
-      .from('ventas')
-      .insert({
-        cliente_id: authData.user.id,
-        fecha_venta: new Date().toISOString(),
-        subtotal: compra.total,
-        precio_final: compra.total,
-        forma_pago: compra.metodoPago,
-        esta_pagado: true,
-        esta_cancelada: false,
-        descuento_porcentaje: 0,
-        descuento_importe: 0,
-      })
-      .select('id')
-      .single();
+    const { data, error } = await supabase.rpc('confirmar_compra', {
+      p_funcion_id: compra.funcionId,
+      p_butacas: compra.butacas,
+      p_productos: compra.productos.map((item) => ({
+        producto_id: item.productoId,
+        cantidad: item.cantidad,
+        precio_unitario: item.precioUnitario,
+      })),
+      p_forma_pago: compra.metodoPago,
+      p_total: compra.total,
+    });
 
-    if (ventaError) throw ventaError;
+    if (error) throw error;
+    if (data === null) throw new Error('Supabase no devolvió el ID de la venta.');
 
-    const entradas = compra.butacas.map((butaca) => ({
-      venta_id: venta.id,
-      funcion_id: compra.funcionId,
-      fila: butaca.fila,
-      asiento: butaca.asiento,
-      precio: butaca.precio,
-      estado_entrada: 'emitida',
-    }));
-
-    const { error: entradasError } = await supabase.from('entradas').insert(entradas);
-    if (entradasError) throw entradasError;
-
-    return venta.id;
+    return data;
   }
 
   async obtenerMisCompras(): Promise<CompraVista[]> {
@@ -83,7 +90,17 @@ export class VentaService {
 
     const { data, error } = await supabase
       .from('ventas')
-      .select(`*,entradas(*,funcion:funciones(fecha,hora,pelicula:peliculas(nombre)))`)
+      .select(
+        `*,entradas(*,funcion:funciones(fecha,hora,pelicula:peliculas(nombre))),
+             detalle_venta(
+              id,
+              producto_id,
+              cantidad,
+              precio_unitario,
+              producto:productos(nombre,categoria)
+            )
+          `,
+      )
       .eq('cliente_id', usuario.id)
       .order('fecha_venta', { ascending: false });
 
@@ -93,6 +110,7 @@ export class VentaService {
       id: venta.id,
       fechaVenta: venta.fecha_venta,
       precioFinal: venta.precio_final,
+
       entradas: (venta.entradas ?? []).map((entrada: EntradaDesdeSupabase) => ({
         id: entrada.id,
         fila: entrada.fila,
@@ -107,6 +125,38 @@ export class VentaService {
             }
           : null,
       })),
+
+      productos: (venta.detalle_venta ?? []).map((detalle: DetalleProductoDesdeSupabase) => ({
+        id: detalle.id,
+        productoId: detalle.producto_id,
+        nombre: detalle.producto?.nombre ?? 'Producto',
+        categoria: detalle.producto?.categoria ?? '',
+        cantidad: Number(detalle.cantidad),
+        precioUnitario: Number(detalle.precio_unitario),
+        subtotal: Number(detalle.cantidad) * Number(detalle.precio_unitario),
+      })),
     }));
+  }
+
+  async obtenerDescuentoPrimeraCompra(): Promise<number> {
+    const supabase = await getSupabaseClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError) throw authError;
+    if (!user || user.is_anonymous) return 0;
+
+    const { count, error } = await supabase
+      .from('ventas')
+      .select('id', { count: 'exact', head: true })
+      .eq('cliente_id', user.id)
+      .eq('esta_pagado', true)
+      .eq('esta_cancelada', false);
+
+    if (error) throw error;
+
+    return count === 0 ? 20 : 0;
   }
 }

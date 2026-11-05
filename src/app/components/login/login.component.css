@@ -9,7 +9,7 @@
   display: grid;
   width: min(460px, 100%);
   justify-items: center;
-  padding: 42px;
+  padding: 36px;
   border: 1px solid var(--cine-border);
   border-radius: 18px;
   background: linear-gradient(145deg, rgba(24, 30, 41, 0.94), rgba(17, 21, 29, 0.94));
@@ -110,7 +110,7 @@
 }
 
 .auth-submit {
-  min-height: 45px;
+  min-height: 42px;
   margin-top: 2px;
   border: 0;
   border-radius: 9px;

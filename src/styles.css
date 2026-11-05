@@ -1,19 +1,21 @@
-* {
-  font-family: 'Montserrat', sans-serif;
-  font-optical-sizing: auto;
-}
-
 :root {
   color-scheme: dark;
   --cine-bg: #090b10;
   --cine-surface: #11151d;
   --cine-surface-raised: #181e29;
+  --cine-surface-soft: #202837;
   --cine-border: rgba(255, 255, 255, 0.09);
   --cine-text: #f5f3ee;
   --cine-muted: #a3a9b6;
   --cine-gold: #f2bd55;
   --cine-gold-light: #ffda8a;
   --cine-red: #e45454;
+  --cine-teal: #6bd4d0;
+  --cine-radius-sm: 8px;
+  --cine-radius-md: 12px;
+  --cine-radius-lg: 16px;
+  --cine-shadow-card: 0 14px 36px rgb(0 0 0 / 18%);
+  --cine-content-width: 1160px;
 }
 
 * {
@@ -33,18 +35,36 @@ body {
     radial-gradient(ellipse at 50% -30%, rgba(129, 83, 24, 0.22), transparent 55%), var(--cine-bg);
   color: var(--cine-text);
   font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: 3px solid var(--cine-gold-light);
   outline-offset: 3px;
+}
+
+button {
+  color: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::placeholder {
+  color: #7f8795;
 }
 
 ::selection {

@@ -1,4 +1,4 @@
-@import '../login-component/login.component.css';
+@import '../login/login.component.css';
 
 .register-card {
   width: min(620px, 100%);

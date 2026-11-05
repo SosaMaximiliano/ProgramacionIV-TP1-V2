@@ -1,1 +1,132 @@
-<p>candy-bar.component works!</p>
+<main class="candy-page">
+  <header class="candy-heading">
+    <button type="button" class="back-link" (click)="volverACompra()">
+      <span aria-hidden="true">←</span>
+      Volver a la compra
+    </button>
+
+    <div class="heading-copy">
+      <span class="section-kicker">PARA DISFRUTAR EN LA FUNCIÓN</span>
+      <h1>Candy Bar</h1>
+      <p>Elegí algo rico para acompañar tu película.</p>
+    </div>
+  </header>
+
+  @if (cargando()) {
+    <section class="candy-message">
+      <span class="message-icon" aria-hidden="true">◌</span>
+      <p>Cargando productos...</p>
+    </section>
+  } @else if (errorCarga()) {
+    <section class="candy-message error-message" role="alert">
+      <h2>No pudimos cargar el menú</h2>
+      <p>{{ errorCarga() }}</p>
+    </section>
+  } @else if (productos().length === 0) {
+    <section class="candy-message">
+      <span class="message-icon" aria-hidden="true">🍿</span>
+      <h2>Menú en preparación</h2>
+      <p>Por el momento no hay productos disponibles.</p>
+    </section>
+  } @else {
+    <div class="candy-layout">
+      <section class="menu-section" aria-labelledby="menu-title">
+        <div class="menu-heading">
+          <div>
+            <span class="section-kicker">NUESTRO MENÚ</span>
+            <h2 id="menu-title">Elegí tus productos</h2>
+          </div>
+          <span class="product-count">{{ productos().length }} opciones</span>
+        </div>
+
+        <div class="products-grid">
+          @for (producto of productos(); track producto.id) {
+            <article class="product-card">
+              <div class="product-art" [attr.data-category]="producto.categoria">
+                <span class="product-emoji" aria-hidden="true">
+                  @if (producto.categoria === 'Pochoclos') {
+                    🍿
+                  } @else if (producto.categoria === 'Gaseosas') {
+                    🥤
+                  } @else {
+                    🍪
+                  }
+                </span>
+                <span class="product-category">{{ producto.categoria }}</span>
+              </div>
+
+              <div class="product-info">
+                <h3>{{ producto.nombre }}</h3>
+                <p class="product-price">{{ producto.precio | currency: 'ARS' }}</p>
+
+                <div class="quantity-control" [attr.aria-label]="'Cantidad de ' + producto.nombre">
+                  <button
+                    type="button"
+                    class="quantity-button"
+                    [disabled]="carritoService.cantidadDe(producto.id) === 0"
+                    (click)="carritoService.quitarUnidad(producto.id)"
+                    [attr.aria-label]="'Quitar una unidad de ' + producto.nombre"
+                  >
+                    −
+                  </button>
+                  <span class="quantity-value" aria-live="polite">
+                    {{ carritoService.cantidadDe(producto.id) }}
+                  </span>
+                  <button
+                    type="button"
+                    class="quantity-button add-button"
+                    (click)="carritoService.agregarItem(producto.id)"
+                    [attr.aria-label]="'Agregar una unidad de ' + producto.nombre"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <aside class="cart-card" aria-labelledby="cart-title">
+        <div class="cart-heading">
+          <div>
+            <span class="section-kicker">TU PEDIDO</span>
+            <h2 id="cart-title">Carrito</h2>
+          </div>
+          <span class="cart-count">{{ unidadesEnCarrito() }}</span>
+        </div>
+
+        @if (carritoService.carrito().length === 0) {
+          <div class="cart-empty">
+            <span aria-hidden="true">＋</span>
+            <p>Sumá productos con el botón + y aparecerán acá.</p>
+          </div>
+        } @else {
+          <ul class="cart-list">
+            @for (item of carritoService.carrito(); track item.producto.id) {
+              <li class="cart-item">
+                <div class="cart-item-info">
+                  <strong>{{ item.producto.nombre }}</strong>
+                  <span>{{ item.cantidad }} × {{ item.producto.precio | currency: 'ARS' }}</span>
+                </div>
+                <strong class="cart-item-subtotal">
+                  {{ item.producto.precio * item.cantidad | currency: 'ARS' }}
+                </strong>
+              </li>
+            }
+          </ul>
+
+          <div class="cart-total">
+            <span>Subtotal de productos</span>
+            <strong>{{ totalCarrito() | currency: 'ARS' }}</strong>
+          </div>
+        }
+
+        <button type="button" class="return-button" (click)="volverACompra()">
+          Volver a la compra <span aria-hidden="true">→</span>
+        </button>
+        <p class="cart-note">Este subtotal corresponde a los productos seleccionados.</p>
+      </aside>
+    </div>
+  }
+</main>

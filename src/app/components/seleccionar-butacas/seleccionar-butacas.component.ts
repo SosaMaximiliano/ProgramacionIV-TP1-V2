@@ -10,9 +10,10 @@ import { Funcion } from '../../models/funcion.model';
 import { FuncionService } from '../../services/funcion.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
-
+import { ValidacionesService } from '../../services/validaciones.service';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 @Component({
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, ReactiveFormsModule],
   selector: 'app-seleccionar-butacas-component',
   styleUrl: './seleccionar-butacas.component.css',
   templateUrl: './seleccionar-butacas.component.html',
@@ -28,10 +29,16 @@ export class SeleccionarButacasComponent {
   nombrePelicula: string | undefined = '';
   errorCarga = '';
   mostrarResumen = signal(false);
+  mostrarModalEdad = signal(false);
   totalSeleccionado = computed(() =>
     this.butacasSeleccionadas().reduce((total, butaca) => total + this.precioButaca(butaca), 0),
   );
   mensajeAcceso = signal('');
+  edadMinima = signal(0);
+  noCumpleEdadMinima = signal<boolean | null>(null);
+  formularioEdad = new FormGroup({
+    fechaNacimiento: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -42,6 +49,7 @@ export class SeleccionarButacasComponent {
     private butacaFuncionService: ButacaFuncionService,
     private peliculaService: PeliculaService,
     private supabaseService: SupabaseService,
+    private validacionesService: ValidacionesService,
   ) {}
 
   precioButaca(butaca: Butaca): number {
@@ -51,13 +59,12 @@ export class SeleccionarButacasComponent {
     return butaca.tipo === 'vip' ? precioBase + RECARGO_VIP : precioBase;
   }
 
-  ngOnInit(): void {
-    void this.cargarDatos();
+  async ngOnInit(): Promise<void> {
+    await this.cargarDatos();
   }
   private async cargarDatos(): Promise<void> {
     //Obtengo el id de la función desde URL
     this.funcionId = Number(this.route.snapshot.paramMap.get('id'));
-    console.log(this.funcionId);
 
     try {
       this.funcion = await this.funcionService.obtenerPorId(this.funcionId);
@@ -86,6 +93,7 @@ export class SeleccionarButacasComponent {
 
       const pelicula = await this.peliculaService.obtenerPorId(this.peliculaId);
       this.nombrePelicula = pelicula?.nombre;
+      this.edadMinima.set(pelicula?.clasificacionEdad ?? 0);
     } catch {
       this.errorCarga = 'No pudimos cargar la función. Revisá la conexión con Supabase.';
     }
@@ -137,27 +145,106 @@ export class SeleccionarButacasComponent {
   }
 
   //Envia los datos a compra
-  continuarCompra() {
+  async continuarCompra(): Promise<void> {
     if (!this.funcion || this.butacasSeleccionadas().length === 0) return;
 
+    if (this.edadMinima() > 0) {
+      const usuario = this.supabaseService.usuarioActual();
+      const fechaNacimiento = usuario?.user_metadata?.['fecha_nacimiento'];
+
+      if (typeof fechaNacimiento !== 'string') {
+        this.mensajeAcceso.set('No encontramos tu fecha de nacimiento para validar la edad.');
+        return;
+      }
+
+      const requiereAcompanante = await this.validarEdad(fechaNacimiento);
+
+      if (requiereAcompanante === null) {
+        this.mensajeAcceso.set('No pudimos validar tu edad. No podemos continuar.');
+        return;
+      }
+
+      this.noCumpleEdadMinima.set(requiereAcompanante);
+
+      if (requiereAcompanante) {
+        this.mostrarModalEdad.set(true);
+        return;
+      }
+    }
+
+    this.navegarACompra();
+  }
+
+  private navegarACompra(): void {
     this.router.navigate(['/compra'], {
       state: { datosCompra: this.datosCompra() },
     });
   }
-
   //Si sigue como invitado
   async seguirComoInvitado(): Promise<void> {
     this.mensajeAcceso.set('');
+
+    if (this.edadMinima() > 0) {
+      const control = this.formularioEdad.controls.fechaNacimiento;
+      control.markAsTouched();
+
+      if (control.invalid) return;
+
+      const requiereAcompanante = await this.validarEdad(control.value);
+
+      if (requiereAcompanante === null) {
+        this.mensajeAcceso.set('No pudimos validar la fecha de nacimiento.');
+        return;
+      }
+
+      this.noCumpleEdadMinima.set(requiereAcompanante);
+
+      if (requiereAcompanante) {
+        this.mostrarModalEdad.set(true);
+        return;
+      }
+    }
 
     try {
       if (!this.supabaseService.usuarioActual()) {
         await this.supabaseService.iniciarSesionInvitado();
       }
 
-      this.continuarCompra();
+      this.navegarACompra();
     } catch (error) {
       console.error(error);
       this.mensajeAcceso.set('No se pudo iniciar la compra como invitado. Intentá de nuevo.');
     }
+  }
+
+  cancelarContinuacionEdad(): void {
+    this.mostrarModalEdad.set(false);
+    this.noCumpleEdadMinima.set(null);
+    this.router.navigateByUrl('/cartelera');
+  }
+
+  async confirmarAcompanamiento(): Promise<void> {
+    this.mostrarModalEdad.set(false);
+    this.noCumpleEdadMinima.set(false);
+
+    try {
+      if (!this.supabaseService.usuarioActual()) {
+        await this.supabaseService.iniciarSesionInvitado();
+      }
+
+      this.navegarACompra();
+    } catch (error) {
+      console.error(error);
+      this.mensajeAcceso.set('No se pudo continuar con la compra.');
+    }
+  }
+
+  private async validarEdad(fechaNacimiento: string): Promise<boolean | null> {
+    const edadMinima = this.edadMinima();
+
+    if (edadMinima === 0) return false;
+    if (!fechaNacimiento) return null;
+
+    return this.validacionesService.requiereAcompanante(fechaNacimiento, edadMinima);
   }
 }

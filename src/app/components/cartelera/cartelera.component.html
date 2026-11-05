@@ -13,6 +13,17 @@
       (ngModelChange)="busqueda.set($event)"
       placeholder="Buscar"
     />
+    <label for="filtro-genero">Filtrar por género</label>
+    <select
+      id="filtro-genero"
+      [ngModel]="generoSeleccionado()"
+      (ngModelChange)="generoSeleccionado.set($event)"
+    >
+      <option value="">Todos los géneros</option>
+      @for (genero of generos(); track genero) {
+        <option [value]="genero">{{ genero }}</option>
+      }
+    </select>
   </div>
   @if (cargando()) {
     <div class="empty-state"><p>Cargando cartelera...</p></div>

@@ -1,8 +1,8 @@
 .movie-detail-page {
-  width: min(1100px, calc(100% - 48px));
-  min-height: calc(100vh - 76px);
+  width: min(var(--cine-content-width), calc(100% - 48px));
+  min-height: calc(100vh - 146px);
   margin: 0 auto;
-  padding: 60px 0 80px;
+  padding: 48px 0 64px;
 }
 
 .movie-detail {
@@ -143,7 +143,8 @@
   align-items: center;
   gap: 9px;
   margin-left: auto;
-  padding: 9px 11px;
+  min-height: 36px;
+  padding: 8px 10px;
   border: 1px solid rgba(242, 189, 85, 0.35);
   border-radius: 8px;
   background: rgba(242, 189, 85, 0.08);
@@ -171,7 +172,7 @@
 @media (max-width: 650px) {
   .movie-detail-page {
     width: calc(100% - 32px);
-    padding-top: 36px;
+    padding-top: 32px;
   }
 
   .movie-detail {

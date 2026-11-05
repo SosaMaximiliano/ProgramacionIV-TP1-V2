@@ -10,8 +10,8 @@
 
 .navbar-inner {
   display: flex;
-  width: min(1200px, calc(100% - 48px));
-  min-height: 76px;
+  width: min(var(--cine-content-width), calc(100% - 48px));
+  min-height: 70px;
   align-items: center;
   justify-content: space-between;
   margin: 0 auto;
@@ -92,12 +92,12 @@
 }
 
 .nav-cta {
-  padding: 11px 16px;
+  padding: 8px 12px;
   border: 1px solid rgba(242, 189, 85, 0.42);
   border-radius: 10px;
   background: transparent;
   color: var(--cine-gold-light);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition:
@@ -126,7 +126,7 @@
 @media (max-width: 600px) {
   .navbar-inner {
     width: calc(100% - 32px);
-    min-height: 68px;
+    min-height: 64px;
   }
 
   .nav-links {

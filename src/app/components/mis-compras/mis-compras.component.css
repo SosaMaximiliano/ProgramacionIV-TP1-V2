@@ -150,6 +150,36 @@
   white-space: nowrap;
 }
 
+.products-section {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cine-border);
+}
+
+.products-section h3 {
+  margin: 0 0 3px;
+  color: var(--cine-text);
+  font-size: 13px;
+}
+
+.product-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 0;
+  color: var(--cine-muted);
+  font-size: 12px;
+}
+
+.product-row strong {
+  color: var(--cine-text);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .purchases-message {
   display: grid;
   min-height: 210px;
