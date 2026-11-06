@@ -6,6 +6,7 @@ import { VentaService } from '../../services/venta.service';
 import { FormaPago } from '../../models/venta.model';
 import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../services/carrito.service';
+import QRCode from 'qrcode';
 
 @Component({
   imports: [CurrencyPipe, RouterLink],
@@ -84,7 +85,6 @@ export class CompraComponent {
       this.mostrarModalQr.set(true);
 
       try {
-        const QRCode = await import('qrcode');
         const contenidoQr = JSON.stringify({
           ventaId,
           pelicula: this.nombrePelicula,

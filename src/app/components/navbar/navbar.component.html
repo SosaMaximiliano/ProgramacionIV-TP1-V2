@@ -15,6 +15,9 @@
         <span class="nav-user">{{ supabaseService.usuarioActual()?.email }}</span>
         <a class="nav-login" routerLink="/mis-compras">Mis compras</a>
         <button class="nav-cta" type="button" (click)="cerrarSesion()">Salir</button>
+        @if (rolActual() === 'administrador') {
+          <a routerLink="/admin/peliculas">Administrar películas</a>
+        }
       } @else {
         <a class="nav-login" routerLink="/login">Ingresar</a>
         <a class="nav-cta" routerLink="/registro">Crear cuenta</a>

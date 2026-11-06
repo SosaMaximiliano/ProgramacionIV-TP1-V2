@@ -1,0 +1,191 @@
+.admin-movies-page {
+  width: min(1000px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 48px 0 72px;
+}
+
+.admin-movies-page header {
+  margin-bottom: 28px;
+}
+
+.admin-movies-page h1 {
+  margin: 8px 0;
+  font-size: clamp(28px, 5vw, 40px);
+}
+
+.admin-movies-page header p,
+.admin-movie-card p {
+  color: var(--cine-muted);
+}
+
+.admin-movies-list {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-movie-card {
+  display: flex;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid var(--cine-border);
+  border-radius: 14px;
+  background: var(--cine-surface);
+}
+
+.admin-movie-card img {
+  width: 84px;
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.admin-movie-card h2 {
+  margin: 4px 0 10px;
+  font-size: 18px;
+}
+
+.admin-movie-card p {
+  margin: 5px 0;
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .admin-movies-page {
+    padding-top: 32px;
+  }
+
+  .admin-movie-card {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .admin-movie-card img {
+    width: 68px;
+    height: 98px;
+  }
+}
+
+.movie-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+  padding: 24px;
+  border: 1px solid var(--cine-border);
+  border-radius: 16px;
+  background: var(--cine-surface);
+}
+
+.movie-form h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 19px;
+}
+
+.movie-form > label {
+  display: grid;
+  gap: 7px;
+  color: var(--cine-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.movie-form input:not([type='checkbox']),
+.movie-form textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--cine-border);
+  border-radius: 8px;
+  background: #0d1118;
+  color: var(--cine-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.movie-form textarea {
+  min-height: 105px;
+  resize: vertical;
+}
+
+.movie-form input:focus,
+.movie-form textarea:focus {
+  border-color: var(--cine-gold);
+  outline: 2px solid rgb(242 189 85 / 16%);
+}
+
+.movie-form .availability-field {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 9px;
+}
+
+.movie-form .availability-field input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--cine-gold);
+}
+
+.movie-form button,
+.admin-movie-card button {
+  width: fit-content;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid var(--cine-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cine-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.movie-form button[type='submit'] {
+  border-color: var(--cine-gold);
+  background: var(--cine-gold);
+  color: #17120a;
+}
+
+.movie-form button:hover,
+.admin-movie-card button:hover {
+  border-color: var(--cine-gold);
+}
+
+.movie-form button[type='submit']:hover {
+  background: var(--cine-gold-light);
+}
+
+.movie-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.admin-movie-card > div {
+  flex: 1;
+}
+
+.admin-movie-card button {
+  align-self: center;
+}
+
+@media (max-width: 620px) {
+  .movie-form {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .movie-form h2,
+  .movie-form .availability-field {
+    grid-column: auto;
+  }
+
+  .admin-movie-card {
+    flex-wrap: wrap;
+  }
+
+  .admin-movie-card button {
+    margin-left: auto;
+  }
+}

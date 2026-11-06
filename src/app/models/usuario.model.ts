@@ -12,3 +12,5 @@ export interface Usuario {
 export type DatosRegistro = Omit<Usuario, 'id'> & {
   password: string;
 };
+
+export type RolUsuario = 'usuario' | 'empleado' | 'administrador';

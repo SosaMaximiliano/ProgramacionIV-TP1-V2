@@ -2,6 +2,8 @@ import { Service } from '@angular/core';
 import { Pelicula } from '../models/pelicula.model';
 import { getSupabaseClient } from './supabase-client';
 
+type DatosPelicula = Omit<Pelicula, 'id'>;
+
 @Service()
 export class PeliculaService {
   async obtenerTodas(): Promise<Pelicula[]> {
@@ -36,5 +38,51 @@ export class PeliculaService {
       fechaEstreno: data.fecha_estreno,
       estaDisponible: data.esta_disponible,
     };
+  }
+
+  async crear(pelicula: DatosPelicula): Promise<void> {
+    const supabase = await getSupabaseClient();
+
+    const { error } = await supabase.from('peliculas').insert({
+      nombre: pelicula.nombre,
+      imagen: pelicula.imagen,
+      sinopsis: pelicula.sinopsis,
+      duracion: pelicula.duracion,
+      genero: pelicula.genero,
+      clasificacion_edad: pelicula.clasificacionEdad,
+      fecha_estreno: pelicula.fechaEstreno,
+      esta_disponible: pelicula.estaDisponible,
+    });
+
+    if (error) throw error;
+  }
+
+  async actualizar(id: number, pelicula: DatosPelicula): Promise<void> {
+    const supabase = await getSupabaseClient();
+
+    const { error } = await supabase
+      .from('peliculas')
+      .update({
+        nombre: pelicula.nombre,
+        imagen: pelicula.imagen,
+        sinopsis: pelicula.sinopsis,
+        duracion: pelicula.duracion,
+        genero: pelicula.genero,
+        clasificacion_edad: pelicula.clasificacionEdad,
+        fecha_estreno: pelicula.fechaEstreno,
+        esta_disponible: pelicula.estaDisponible,
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  async eliminar(id: number): Promise<void> {
+    const supabase = await getSupabaseClient();
+
+    const { error } = await supabase.from('peliculas').delete().eq('id', id);
+
+    if (error) throw error;
+    // prueba
   }
 }

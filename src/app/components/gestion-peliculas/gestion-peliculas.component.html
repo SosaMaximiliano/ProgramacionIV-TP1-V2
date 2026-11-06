@@ -1,0 +1,60 @@
+<main class="admin-movies-page">
+  <header>
+    <span class="section-kicker">ADMINISTRACIÓN</span>
+    <h1>Gestión de películas</h1>
+    <p>Consultá las películas registradas en el catálogo.</p>
+  </header>
+
+  @if (cargando()) {
+    <p>Cargando películas...</p>
+  } @else if (error()) {
+    <p role="alert">{{ error() }}</p>
+  } @else {
+    <form class="movie-form" [formGroup]="formulario" (ngSubmit)="guardarPelicula()">
+      <h2>{{ editandoId() === null ? 'Agregar película' : 'Editar película' }}</h2>
+
+      <label>Nombre <input formControlName="nombre" /></label>
+      <label>Imagen (URL) <input formControlName="imagen" /></label>
+      <label>Sinopsis <textarea formControlName="sinopsis"></textarea></label>
+      <label>Duración en minutos <input type="number" formControlName="duracion" /></label>
+      <label>Género <input formControlName="genero" /></label>
+      <label
+        >Clasificación de edad <input type="number" formControlName="clasificacionEdad"
+      /></label>
+      <label>Fecha de estreno <input type="date" formControlName="fechaEstreno" /></label>
+      <label class="availability-field">
+        <input type="checkbox" formControlName="estaDisponible" />
+        Disponible en cartelera
+      </label>
+
+      <button type="submit" [disabled]="guardando() || formulario.invalid">
+        {{ guardando() ? 'Guardando…' : editandoId() === null ? 'Agregar' : 'Guardar cambios' }}
+      </button>
+
+      @if (editandoId() !== null) {
+        <button type="button" (click)="cancelarEdicion()">Cancelar edición</button>
+      }
+    </form>
+
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+
+    <section class="admin-movies-list">
+      @for (pelicula of peliculas(); track pelicula.id) {
+        <article class="admin-movie-card">
+          <img [src]="pelicula.imagen" [alt]="'Póster de ' + pelicula.nombre" />
+          <div>
+            <h2>{{ pelicula.nombre }}</h2>
+            <p>{{ pelicula.genero }} · {{ pelicula.duracion }} minutos</p>
+            <p>Clasificación: {{ pelicula.clasificacionEdad }} años</p>
+            <p>{{ pelicula.estaDisponible ? 'Disponible' : 'Próximamente' }}</p>
+          </div>
+          <button type="button" (click)="editarPelicula(pelicula)">Editar</button>
+        </article>
+      } @empty {
+        <p>No hay películas registradas.</p>
+      }
+    </section>
+  }
+</main>

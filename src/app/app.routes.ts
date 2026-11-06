@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/usuario-registrado.guard';
+import { administradorGuard } from './guards/administrador.guard';
 
 export const routes: Routes = [
   {
@@ -59,6 +60,14 @@ export const routes: Routes = [
     path: 'candy-bar',
     loadComponent: () =>
       import('./components/candy-bar/candy-bar.component').then((m) => m.CandyBarComponent),
+  },
+  {
+    path: 'admin/peliculas',
+    loadComponent: () =>
+      import('./components/gestion-peliculas/gestion-peliculas.component').then(
+        (m) => m.GestionPeliculasComponent,
+      ),
+    canActivate: [administradorGuard],
   },
   {
     path: '**',
