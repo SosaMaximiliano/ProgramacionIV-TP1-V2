@@ -7,9 +7,10 @@
 
   @if (cargando()) {
     <p>Cargando películas...</p>
-  } @else if (error()) {
-    <p role="alert">{{ error() }}</p>
   } @else {
+    @if (error()) { <p class="feedback feedback-error" role="alert">{{ error() }}</p> }
+    @if (mensaje()) { <p class="feedback feedback-success" role="status">{{ mensaje() }}</p> }
+
     <form class="movie-form" [formGroup]="formulario" (ngSubmit)="guardarPelicula()">
       <h2>{{ editandoId() === null ? 'Agregar película' : 'Editar película' }}</h2>
 
@@ -18,9 +19,13 @@
       <label>Sinopsis <textarea formControlName="sinopsis"></textarea></label>
       <label>Duración en minutos <input type="number" formControlName="duracion" /></label>
       <label>Género <input formControlName="genero" /></label>
-      <label
-        >Clasificación de edad <input type="number" formControlName="clasificacionEdad"
-      /></label>
+      <label>Clasificación de edad
+        <select formControlName="clasificacionEdad">
+          <option [ngValue]="0">ATP / sin restricción</option>
+          <option [ngValue]="13">Mayores de 13</option>
+          <option [ngValue]="18">Mayores de 18</option>
+        </select>
+      </label>
       <label>Fecha de estreno <input type="date" formControlName="fechaEstreno" /></label>
       <label class="availability-field">
         <input type="checkbox" formControlName="estaDisponible" />
@@ -50,7 +55,13 @@
             <p>Clasificación: {{ pelicula.clasificacionEdad }} años</p>
             <p>{{ pelicula.estaDisponible ? 'Disponible' : 'Próximamente' }}</p>
           </div>
-          <button type="button" (click)="editarPelicula(pelicula)">Editar</button>
+          <div class="movie-actions">
+            <button type="button" (click)="editarPelicula(pelicula)">Editar</button>
+            <button class="delete-button" type="button" (click)="eliminarPelicula(pelicula)"
+              [disabled]="eliminandoId() !== null">
+              {{ eliminandoId() === pelicula.id ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          </div>
         </article>
       } @empty {
         <p>No hay películas registradas.</p>

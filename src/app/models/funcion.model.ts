@@ -1,3 +1,6 @@
+export type IdiomaFuncion = 'castellano' | 'subtitulado';
+export type ProyeccionFuncion = '2D' | '3D' | '4D' | '5D';
+
 export interface Funcion {
   id: number;
   peliculaId: number;
@@ -5,4 +8,6 @@ export interface Funcion {
   fecha: string;
   hora: string;
   precioEntrada: number;
+  idioma: IdiomaFuncion;
+  proyeccion: ProyeccionFuncion;
 }

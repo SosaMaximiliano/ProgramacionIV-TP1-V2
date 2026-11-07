@@ -15,7 +15,9 @@ export class GestionPeliculasComponent implements OnInit {
   peliculas = signal<Pelicula[]>([]);
   cargando = signal(true);
   guardando = signal(false);
+  eliminandoId = signal<number | null>(null);
   error = signal('');
+  mensaje = signal('');
   editandoId = signal<number | null>(null);
 
   formulario = this.fb.nonNullable.group({
@@ -24,7 +26,7 @@ export class GestionPeliculasComponent implements OnInit {
     sinopsis: ['', Validators.required],
     duracion: [90, [Validators.required, Validators.min(1)]],
     genero: ['', Validators.required],
-    clasificacionEdad: [0, [Validators.required, Validators.min(0)]],
+    clasificacionEdad: [0, [Validators.required, Validators.pattern(/^(0|13|18)$/)]],
     fechaEstreno: ['', Validators.required],
     estaDisponible: [true],
   });
@@ -57,6 +59,7 @@ export class GestionPeliculasComponent implements OnInit {
 
     this.guardando.set(true);
     this.error.set('');
+    this.mensaje.set('');
 
     try {
       const datos = this.formulario.getRawValue();
@@ -64,8 +67,10 @@ export class GestionPeliculasComponent implements OnInit {
 
       if (id === null) {
         await this.peliculaService.crear(datos);
+        this.mensaje.set('La película se agregó correctamente.');
       } else {
         await this.peliculaService.actualizar(id, datos);
+        this.mensaje.set('Los cambios se guardaron correctamente.');
       }
 
       this.cancelarEdicion();
@@ -79,6 +84,8 @@ export class GestionPeliculasComponent implements OnInit {
   }
 
   editarPelicula(pelicula: Pelicula): void {
+    this.error.set('');
+    this.mensaje.set('');
     this.editandoId.set(pelicula.id);
     this.formulario.setValue({
       nombre: pelicula.nombre,
@@ -104,5 +111,26 @@ export class GestionPeliculasComponent implements OnInit {
       fechaEstreno: '',
       estaDisponible: true,
     });
+  }
+
+  async eliminarPelicula(pelicula: Pelicula): Promise<void> {
+    const confirmar = window.confirm(`¿Querés eliminar «${pelicula.nombre}»? Esta acción no se puede deshacer.`);
+    if (!confirmar) return;
+
+    this.eliminandoId.set(pelicula.id);
+    this.error.set('');
+    this.mensaje.set('');
+
+    try {
+      await this.peliculaService.eliminar(pelicula.id);
+      if (this.editandoId() === pelicula.id) this.cancelarEdicion();
+      this.peliculas.update((lista) => lista.filter((item) => item.id !== pelicula.id));
+      this.mensaje.set(`Se eliminó «${pelicula.nombre}».`);
+    } catch (error) {
+      console.error(error);
+      this.error.set('No se pudo eliminar la película. Puede estar relacionada con funciones u otros registros.');
+    } finally {
+      this.eliminandoId.set(null);
+    }
   }
 }

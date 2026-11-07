@@ -1,0 +1,90 @@
+<main class="showtime-admin-page">
+  <header class="page-heading">
+    <span class="section-kicker">ADMINISTRACIÓN</span>
+    <h1>Gestión de funciones</h1>
+    <p>Programá funciones; el sistema asigna la primera sala disponible respetando la duración y el intervalo de limpieza de 30 minutos.</p>
+  </header>
+
+  @if (cargando()) {
+    <p>Cargando datos…</p>
+  } @else {
+    @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
+    @if (mensaje()) { <p class="feedback success" role="status">{{ mensaje() }}</p> }
+
+    <form class="showtime-form" [formGroup]="formulario" (ngSubmit)="guardarFuncion()">
+      <h2>{{ editandoId() === null ? 'Programar función' : 'Editar función' }}</h2>
+
+      <label>Película
+        <select formControlName="peliculaId" (change)="calcularSala()">
+          <option [ngValue]="0" disabled>Seleccioná una película</option>
+          @for (pelicula of peliculas(); track pelicula.id) {
+            <option [ngValue]="pelicula.id">{{ pelicula.nombre }} ({{ pelicula.duracion }} min)</option>
+          }
+        </select>
+      </label>
+
+      <label>Fecha
+        <input type="date" formControlName="fecha" (change)="calcularSala()" />
+      </label>
+
+      <label>Hora
+        <input type="time" formControlName="hora" (change)="calcularSala()" />
+      </label>
+
+      <label>Precio base de entrada
+        <input type="number" min="0.01" step="0.01" formControlName="precioEntrada" />
+      </label>
+
+      <label>Idioma
+        <select formControlName="idioma">
+          <option value="castellano">Castellano</option>
+          <option value="subtitulado">Subtitulado</option>
+        </select>
+      </label>
+
+      <label>Tipo de proyección
+        <select formControlName="proyeccion">
+          <option value="2D">2D</option>
+          <option value="3D">3D</option>
+          <option value="4D">4D</option>
+          <option value="5D">5D</option>
+        </select>
+      </label>
+
+      <div class="room-assignment" aria-live="polite">
+        <span>Sala asignada automáticamente</span>
+        <strong>{{ salaAsignadaId() === null ? 'Sin sala disponible' : nombreSala(salaAsignadaId()!) }}</strong>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary-button" type="submit" [disabled]="guardando() || formulario.invalid || salaAsignadaId() === null">
+          {{ guardando() ? 'Guardando…' : editandoId() === null ? 'Programar función' : 'Guardar cambios' }}
+        </button>
+        @if (editandoId() !== null) {
+          <button class="secondary-button" type="button" (click)="cancelarEdicion()">Cancelar</button>
+        }
+      </div>
+    </form>
+
+    <section class="showtime-list" aria-label="Funciones programadas">
+      <h2>Funciones programadas</h2>
+      @for (funcion of funciones(); track funcion.id) {
+        <article class="showtime-row">
+          <div>
+            <h3>{{ nombrePelicula(funcion.peliculaId) }}</h3>
+            <p>{{ funcion.fecha }} · {{ funcion.hora }} · {{ nombreSala(funcion.salaId) }} · {{ funcion.proyeccion }} · {{ funcion.idioma }}</p>
+          </div>
+          <strong>{{ funcion.precioEntrada | currency: 'ARS' }}</strong>
+          <div class="row-actions">
+            <button type="button" class="secondary-button" (click)="editarFuncion(funcion)">Editar</button>
+            <button type="button" class="danger-button" (click)="eliminarFuncion(funcion)" [disabled]="eliminandoId() !== null">
+              {{ eliminandoId() === funcion.id ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <p>No hay funciones programadas.</p>
+      }
+    </section>
+  }
+</main>

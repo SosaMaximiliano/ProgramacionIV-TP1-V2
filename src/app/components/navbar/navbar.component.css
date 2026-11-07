@@ -69,8 +69,28 @@
 .nav-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 17px;
 }
+
+.admin-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-nav-links a {
+  color: var(--cine-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-nav-links a:hover { color: var(--cine-gold-light); }
 
 .nav-user {
   max-width: 170px;
@@ -135,7 +155,12 @@
 
   .nav-actions {
     gap: 9px;
+    max-width: calc(100% - 48px);
   }
+
+  .admin-nav-links { gap: 9px; }
+
+  .admin-nav-links a { font-size: 11px; }
 
   .nav-user {
     display: none;

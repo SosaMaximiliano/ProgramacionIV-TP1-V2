@@ -83,6 +83,19 @@ export class PeliculaService {
     const { error } = await supabase.from('peliculas').delete().eq('id', id);
 
     if (error) throw error;
-    // prueba
+  }
+
+  async obtenerTresMasVendidas() {
+    const supabase = await getSupabaseClient();
+    const { data, error } = await supabase
+      .from('peliculas_mas_vendidas')
+      .select('*')
+      .order('entradas_vendidas', { ascending: false })
+      .order('id', { ascending: true })
+      .limit(3);
+
+    if (error) throw error;
+
+    return data ?? [];
   }
 }

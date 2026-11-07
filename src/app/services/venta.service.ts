@@ -59,7 +59,7 @@ export class VentaService {
     if (authError) throw authError;
     if (!user) throw new Error('Se requiere una sesión para comprar.');
 
-    const { data, error } = await supabase.rpc('confirmar_compra', {
+    const { data, error } = await supabase.rpc('confirmar_compra_con_credito', {
       p_funcion_id: compra.funcionId,
       p_butacas: compra.butacas,
       p_productos: compra.productos.map((item) => ({
@@ -110,6 +110,9 @@ export class VentaService {
       id: venta.id,
       fechaVenta: venta.fecha_venta,
       precioFinal: venta.precio_final,
+      importeAcreditable: Number(venta.subtotal) - Number(venta.descuento_importe ?? 0),
+      estaPagado: venta.esta_pagado,
+      estaCancelada: venta.esta_cancelada,
 
       entradas: (venta.entradas ?? []).map((entrada: EntradaDesdeSupabase) => ({
         id: entrada.id,
@@ -136,6 +139,26 @@ export class VentaService {
         subtotal: Number(detalle.cantidad) * Number(detalle.precio_unitario),
       })),
     }));
+  }
+
+  async cancelarCompra(ventaId: number): Promise<{ creditoAcreditado: number; saldoCredito: number }> {
+    const supabase = await getSupabaseClient();
+    const { data, error } = await supabase.rpc('cancelar_compra', {
+      p_venta_id: ventaId,
+    });
+
+    if (error) throw error;
+    return {
+      creditoAcreditado: Number(data.credito_acreditado),
+      saldoCredito: Number(data.saldo_credito),
+    };
+  }
+
+  async obtenerSaldoCredito(): Promise<number> {
+    const supabase = await getSupabaseClient();
+    const { data, error } = await supabase.rpc('obtener_saldo_credito');
+    if (error) throw error;
+    return Number(data ?? 0);
   }
 
   async obtenerDescuentoPrimeraCompra(): Promise<number> {

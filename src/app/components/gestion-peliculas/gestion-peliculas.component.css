@@ -91,7 +91,8 @@
 }
 
 .movie-form input:not([type='checkbox']),
-.movie-form textarea {
+.movie-form textarea,
+.movie-form select {
   width: 100%;
   min-width: 0;
   padding: 10px 12px;
@@ -109,7 +110,8 @@
 }
 
 .movie-form input:focus,
-.movie-form textarea:focus {
+.movie-form textarea:focus,
+.movie-form select:focus {
   border-color: var(--cine-gold);
   outline: 2px solid rgb(242 189 85 / 16%);
 }
@@ -153,6 +155,46 @@
   border-color: var(--cine-gold);
 }
 
+.movie-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.movie-form .delete-button,
+.admin-movie-card .delete-button {
+  border-color: rgb(228 84 84 / 45%);
+  color: #ff9b9b;
+}
+
+.movie-form .delete-button:hover,
+.admin-movie-card .delete-button:hover {
+  border-color: var(--cine-red);
+  background: rgb(228 84 84 / 10%);
+}
+
+.movie-actions button:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.feedback {
+  margin: 0 0 16px;
+  padding: 11px 14px;
+  border: 1px solid var(--cine-border);
+  border-radius: 9px;
+}
+
+.feedback-error {
+  border-color: rgb(228 84 84 / 45%);
+  color: #ffb1b1;
+}
+
+.feedback-success {
+  border-color: rgb(107 212 208 / 40%);
+  color: var(--cine-teal);
+}
+
 .movie-form button[type='submit']:hover {
   background: var(--cine-gold-light);
 }
@@ -187,5 +229,10 @@
 
   .admin-movie-card button {
     margin-left: auto;
+  }
+
+  .movie-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }

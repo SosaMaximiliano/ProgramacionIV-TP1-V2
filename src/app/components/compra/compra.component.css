@@ -219,6 +219,8 @@
   opacity: 0.55;
 }
 
+.download-ticket { margin: 14px auto; }
+
 .empty-state p {
   color: var(--cine-muted);
   font-size: 13px;

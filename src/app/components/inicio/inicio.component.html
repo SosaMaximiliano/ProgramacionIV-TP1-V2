@@ -3,9 +3,9 @@
     <span class="eyebrow"><span class="eyebrow-dot"></span> TU PRÓXIMA HISTORIA EMPIEZA ACÁ</span>
     <h1>La magia del cine,<br /><span>a un paso de vos.</span></h1>
     <p>Grandes historias, pantalla gigante y ese momento que solo se vive en el cine.</p>
-    <a class="hero-button" routerLink="/cartelera"
-      >Explorar cartelera <span aria-hidden="true">→</span></a
-    >
+    <a class="hero-button" routerLink="/cartelera">
+      Explorar cartelera <span aria-hidden="true">→</span>
+    </a>
   </div>
   <div class="hero-art" aria-hidden="true">
     <div class="film-frame frame-back"></div>
@@ -17,9 +17,28 @@
     <span class="hero-star star-two">✧</span>
   </div>
   <div class="hero-bottom">
-    <span>LUZ · CÁMARA · EMOCIÓN</span
-    ><span>DESLIZÁ PARA DESCUBRIR <span aria-hidden="true">↓</span></span>
+    <span>LUZ · CÁMARA · EMOCIÓN</span>
+    <span>DESLIZÁ PARA DESCUBRIR <span aria-hidden="true">↓</span></span>
   </div>
+</section>
+
+<section class="top3" aria-labelledby="top-movies-title">
+  @if (topPeliculas().length > 0) {
+    <div class="top-title-container">
+      <span class="section-kicker">LAS MÁS VISTAS</span>
+      <h2 id="top-movies-title" class="top-title">Las películas más vendidas</h2>
+    </div>
+    <div class="peliculas-grid">
+      @for (pelicula of topPeliculas(); track pelicula.id) {
+        <div class="top">
+          <app-pelicula-component
+            [pelicula]="pelicula"
+            (peliculaSeleccionada)="seleccionarPelicula($event)"
+          />
+        </div>
+      }
+    </div>
+  }
 </section>
 
 <section class="home-discover">
@@ -29,4 +48,32 @@
     <h2>Una experiencia que se disfruta mejor acá.</h2>
   </div>
   <a routerLink="/cartelera">Ver películas <span aria-hidden="true">↗</span></a>
+</section>
+
+<section class="upcoming-section" aria-labelledby="upcoming-title">
+  @if (cargandoProximas()) {
+    <header class="upcoming-heading">
+      <div>
+        <span class="section-kicker">PREPARÁ TU PRÓXIMA VISITA</span>
+        <h2 id="upcoming-title">Próximamente</h2>
+        <p>Estrenos de las próximas cuatro semanas.</p>
+      </div>
+      <a routerLink="/cartelera">Ver cartelera <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <p class="upcoming-status">Cargando próximos estrenos…</p>
+  } @else if (errorProximas()) {
+    <p class="upcoming-status" role="alert">{{ errorProximas() }}</p>
+  } @else if (peliculasProximas().length > 0) {
+    <div class="upcoming-grid">
+      @for (pelicula of peliculasProximas(); track pelicula.id) {
+        <app-pelicula-component
+          [pelicula]="pelicula"
+          (peliculaSeleccionada)="seleccionarPelicula($event)"
+        />
+      }
+    </div>
+  } @else {
+    <p class="upcoming-status">No hay estrenos previstos para las próximas cuatro semanas.</p>
+  }
 </section>

@@ -18,6 +18,77 @@
     </div>
   }
 
+  <section class="reviews-section" aria-labelledby="reviews-title">
+    <div class="reviews-heading">
+      <div>
+        <span class="section-kicker">OPINIONES</span>
+        <h2 id="reviews-title">Reseñas y calificaciones</h2>
+      </div>
+      <p class="reviews-average">
+        @if (promedioResenas() !== null) {
+          <strong>★ {{ promedioResenas() | number: '1.1-1' }} / 5</strong>
+          <span>{{ resenas().length }} {{ resenas().length === 1 ? 'reseña' : 'reseñas' }}</span>
+        } @else {
+          <span>Sin calificaciones todavía</span>
+        }
+      </p>
+    </div>
+
+    @if (cargandoResenas()) {
+      <p class="review-message">Cargando reseñas…</p>
+    } @else {
+      @if (errorResenas()) {
+        <p class="reviews-error" role="alert">{{ errorResenas() }}</p>
+      }
+
+      @if (puedeResenar()) {
+        <form class="review-form" [formGroup]="formularioResena" (ngSubmit)="guardarResena()">
+          <label for="puntuacion">Tu calificación</label>
+          <select id="puntuacion" formControlName="puntuacion">
+            <option [ngValue]="5">★★★★★ — Excelente</option>
+            <option [ngValue]="4">★★★★☆ — Muy buena</option>
+            <option [ngValue]="3">★★★☆☆ — Buena</option>
+            <option [ngValue]="2">★★☆☆☆ — Regular</option>
+            <option [ngValue]="1">★☆☆☆☆ — Mala</option>
+          </select>
+
+          <label for="comentario">Comentario breve (opcional)</label>
+          <textarea id="comentario" rows="3" maxlength="300" formControlName="comentario"
+            placeholder="¿Qué te pareció la película?"></textarea>
+          <small>{{ formularioResena.controls.comentario.value.length }}/300 caracteres</small>
+          <button type="submit" [disabled]="guardandoResena() || formularioResena.invalid">
+            {{ guardandoResena() ? 'Guardando…' : resenaPropia() ? 'Actualizar reseña' : 'Publicar reseña' }}
+          </button>
+          @if (mensajeResena()) { <p class="review-message" role="status">{{ mensajeResena() }}</p> }
+        </form>
+      } @else {
+        <p class="review-login-message">
+          <a routerLink="/login">Ingresá con tu cuenta</a> para calificar y reseñar esta película.
+        </p>
+      }
+
+      <div class="reviews-list">
+        @for (resena of resenas(); track resena.id) {
+          <article class="review-card">
+            <div class="review-card-heading">
+              <strong>Espectador</strong>
+              <span aria-label="Calificación">{{ '★'.repeat(resena.puntuacion) }}{{ '☆'.repeat(5 - resena.puntuacion) }}</span>
+            </div>
+            @if (resena.comentario) {
+              <p>{{ resena.comentario }}</p>
+            } @else {
+              <p class="review-no-comment">Sin comentario escrito.</p>
+            }
+          </article>
+        } @empty {
+          @if (!errorResenas()) {
+            <p class="review-message">Todavía no hay reseñas. Podés ser la primera persona en opinar.</p>
+          }
+        }
+      </div>
+    }
+  </section>
+
   @if (funciones().length > 0) {
     <section class="showtimes-section">
       <div class="showtimes-heading">
@@ -32,7 +103,7 @@
             <span class="showtime-icon" aria-hidden="true">◷</span>
             <div class="showtime-info">
               <strong>{{ funcion.hora }}</strong>
-              <span>{{ funcion.fecha }} · Sala {{ funcion.salaId }}</span>
+              <span>{{ funcion.fecha }} · Sala {{ funcion.salaId }} · {{ funcion.proyeccion }} · {{ funcion.idioma }}</span>
             </div>
             <button (click)="seleccionarFuncion(funcion)">
               Elegir <span aria-hidden="true">→</span>

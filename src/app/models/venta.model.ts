@@ -21,7 +21,8 @@ export interface Venta {
   entradas: Entrada[];
 }
 
-export type CompraVista = Pick<Venta, 'id' | 'fechaVenta' | 'precioFinal'> & {
+export type CompraVista = Pick<Venta, 'id' | 'fechaVenta' | 'precioFinal' | 'estaPagado' | 'estaCancelada'> & {
+  importeAcreditable: number;
   entradas: (Pick<Entrada, 'id' | 'fila' | 'asiento' | 'precio' | 'funcionId'> & {
     funcion: {
       fecha: string;

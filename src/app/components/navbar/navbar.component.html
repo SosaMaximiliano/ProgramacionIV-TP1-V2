@@ -16,7 +16,11 @@
         <a class="nav-login" routerLink="/mis-compras">Mis compras</a>
         <button class="nav-cta" type="button" (click)="cerrarSesion()">Salir</button>
         @if (rolActual() === 'administrador') {
-          <a routerLink="/admin/peliculas">Administrar películas</a>
+          <div class="admin-nav-links" aria-label="Administración">
+            <a routerLink="/admin/peliculas">Películas</a>
+            <a routerLink="/admin/funciones">Funciones</a>
+            <a routerLink="/admin/reportes">Reportes</a>
+          </div>
         }
       } @else {
         <a class="nav-login" routerLink="/login">Ingresar</a>

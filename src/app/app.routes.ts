@@ -70,6 +70,22 @@ export const routes: Routes = [
     canActivate: [administradorGuard],
   },
   {
+    path: 'admin/funciones',
+    loadComponent: () =>
+      import('./components/gestion-funciones/gestion-funciones.component').then(
+        (m) => m.GestionFuncionesComponent,
+      ),
+    canActivate: [administradorGuard],
+  },
+  {
+    path: 'admin/reportes',
+    loadComponent: () =>
+      import('./components/reporte-facturacion/reporte-facturacion.component').then(
+        (m) => m.ReporteFacturacionComponent,
+      ),
+    canActivate: [administradorGuard],
+  },
+  {
     path: '**',
     redirectTo: 'error',
   },

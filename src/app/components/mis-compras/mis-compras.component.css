@@ -32,6 +32,22 @@
   font-size: 13px;
 }
 
+.credit-balance {
+  margin-top: 14px !important;
+  color: var(--cine-text) !important;
+}
+
+.credit-balance strong { color: var(--cine-gold-light); }
+.cancellation-message {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid rgb(242 189 85 / 30%);
+  border-radius: 10px;
+  background: rgb(242 189 85 / 8%);
+  color: var(--cine-text);
+  font-size: 13px;
+}
+
 .purchases-list {
   display: grid;
   gap: 18px;
@@ -80,6 +96,31 @@
 .purchase-total strong {
   color: var(--cine-gold-light);
   font-size: 20px;
+}
+
+.purchase-status {
+  color: #9be0b3 !important;
+  font-weight: 700;
+}
+.cancelled-status { color: #ffaaaa !important; }
+.cancel-purchase-button {
+  margin-top: 18px;
+  padding: 9px 13px;
+  border: 1px solid rgb(255 170 170 / 45%);
+  border-radius: 8px;
+  background: transparent;
+  color: #ffb4b4;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+.cancel-purchase-button:hover:not(:disabled) { background: rgb(255 170 170 / 9%); }
+.cancel-purchase-button:disabled { cursor: wait; opacity: .6; }
+.cancellation-note {
+  margin: 7px 0 0;
+  color: var(--cine-muted);
+  font-size: 11px;
 }
 
 .purchase-date {

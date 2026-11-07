@@ -3,7 +3,12 @@
     <span class="section-kicker">TU CUENTA</span>
     <h1>Mis compras</h1>
     <p>Consultá tus ventas y las entradas asociadas.</p>
+    <p class="credit-balance">Crédito disponible: <strong>{{ saldoCredito() | currency: 'ARS' }}</strong></p>
   </header>
+
+  @if (mensajeCancelacion()) {
+    <p class="cancellation-message" role="status">{{ mensajeCancelacion() }}</p>
+  }
 
   @if (cargando()) {
     <section class="purchases-message">
@@ -38,8 +43,23 @@
             <div class="purchase-total">
               <span>Total</span>
               <strong>{{ venta.precioFinal | currency: '$' }}</strong>
+              <span class="purchase-status" [class.cancelled-status]="venta.estaCancelada">
+                {{ venta.estaCancelada ? 'Cancelada' : 'Confirmada' }}
+              </span>
             </div>
           </header>
+
+          @if (puedeCancelar(venta)) {
+            <button
+              class="cancel-purchase-button"
+              type="button"
+              [disabled]="cancelandoId() !== null"
+              (click)="cancelarCompra(venta)"
+            >
+              {{ cancelandoId() === venta.id ? 'Cancelando…' : 'Cancelar compra' }}
+            </button>
+            <p class="cancellation-note">Podés cancelar hasta 2 horas antes de la función. El importe se convierte en crédito para futuras compras.</p>
+          }
 
           <div class="tickets-section">
             <h3>Entradas</h3>
@@ -51,7 +71,7 @@
                   <span class="seat-icon" aria-hidden="true">▦</span>
                   <div>
                     <strong>Fila {{ entrada.fila }}, asiento {{ entrada.asiento }}</strong>
-                    <span>Entrada emitida</span>
+                  <span>{{ venta.estaCancelada ? 'Entrada cancelada' : 'Entrada emitida' }}</span>
                   </div>
                 </div>
 

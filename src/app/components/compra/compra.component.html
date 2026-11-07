@@ -24,6 +24,14 @@
             <span>Sala</span>
             <strong>{{ funcion.salaId }}</strong>
           </div>
+          <div>
+            <span>Proyección</span>
+            <strong>{{ funcion.proyeccion }}</strong>
+          </div>
+          <div>
+            <span>Idioma</span>
+            <strong>{{ funcion.idioma === 'subtitulado' ? 'Subtitulado' : 'Castellano' }}</strong>
+          </div>
         </div>
       </section>
 
@@ -74,9 +82,16 @@
           </div>
         }
 
+        @if (creditoAplicado() > 0) {
+          <div class="checkout-total">
+            <span>Crédito aplicado (saldo disponible: {{ saldoCredito() | currency: 'ARS' }})</span>
+            <strong>-{{ creditoAplicado() | currency: 'ARS' }}</strong>
+          </div>
+        }
+
         <div class="checkout-total">
           <span>Total a pagar</span>
-          <strong>{{ totalConDescuento() | currency: 'ARS' }}</strong>
+          <strong>{{ totalFinalPago() | currency: 'ARS' }}</strong>
         </div>
 
         @if (!compraConfirmada()) {
@@ -151,10 +166,23 @@
               @if (qrImagen()) {
                 <img class="purchase-qr" [src]="qrImagen()" alt="Código QR de la compra" />
                 <p>Referencia de compra #{{ ventaId() }}</p>
+                <button
+                  type="button"
+                  class="primary-action download-ticket"
+                  [disabled]="descargandoPdf()"
+                  (click)="descargarComprobantePdf()"
+                >
+                  {{ descargandoPdf() ? 'Generando PDF…' : 'Descargar entrada en PDF' }}
+                </button>
               } @else if (errorQr()) {
                 <p class="checkout-error" role="alert">{{ errorQr() }}</p>
+                <p class="checkout-error">No se puede descargar el comprobante hasta contar con el QR.</p>
               } @else {
                 <p>Generando el código QR…</p>
+              }
+
+              @if (errorPdf()) {
+                <p class="checkout-error" role="alert">{{ errorPdf() }}</p>
               }
 
               <button type="button" class="primary-action" (click)="cerrarModalQr()">
