@@ -22,6 +22,10 @@
             <a routerLink="/admin/reportes">Reportes</a>
           </div>
         }
+
+        @if (rolActual() === 'empleado' || rolActual() === 'administrador') {
+          <a class="nav-link" routerLink="/validar-entradas">Validar entradas</a>
+        }
       } @else {
         <a class="nav-login" routerLink="/login">Ingresar</a>
         <a class="nav-cta" routerLink="/registro">Crear cuenta</a>

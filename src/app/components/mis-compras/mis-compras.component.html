@@ -54,7 +54,7 @@
               class="cancel-purchase-button"
               type="button"
               [disabled]="cancelandoId() !== null"
-              (click)="cancelarCompra(venta)"
+              (click)="solicitarCancelacion(venta)"
             >
               {{ cancelandoId() === venta.id ? 'Cancelando…' : 'Cancelar compra' }}
             </button>
@@ -93,6 +93,49 @@
           </div>
         </article>
       }
+    </div>
+  }
+
+  @if (compraPendienteCancelar(); as venta) {
+    <div class="cancel-modal-backdrop" (click)="cerrarModalCancelacion()">
+      <section
+        class="cancel-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cancel-modal-title"
+        (click)="$event.stopPropagation()"
+      >
+        <span class="section-kicker">CONFIRMAR ACCIÓN</span>
+        <h2 id="cancel-modal-title">¿Cancelar la compra #{{ venta.id }}?</h2>
+        <p>
+          Se acreditarán <strong>{{ venta.importeAcreditable | currency: 'ARS' }}</strong>
+          para futuras compras. No se reintegrará dinero.
+        </p>
+        <p class="cancel-modal-note">Las entradas de esta compra quedarán canceladas y sus butacas se liberarán.</p>
+
+        @if (errorCancelacionModal()) {
+          <p class="cancel-modal-error" role="alert">{{ errorCancelacionModal() }}</p>
+        }
+
+        <div class="cancel-modal-actions">
+          <button
+            type="button"
+            class="cancel-modal-secondary"
+            [disabled]="cancelandoId() !== null"
+            (click)="cerrarModalCancelacion()"
+          >
+            Volver
+          </button>
+          <button
+            type="button"
+            class="cancel-modal-confirm"
+            [disabled]="cancelandoId() !== null"
+            (click)="confirmarCancelacion()"
+          >
+            {{ cancelandoId() === venta.id ? 'Cancelando…' : 'Confirmar cancelación' }}
+          </button>
+        </div>
+      </section>
     </div>
   }
 </main>

@@ -27,11 +27,11 @@
           required
         />
       </label>
-      @if (mensaje) {
-        <p class="auth-message" role="alert">{{ mensaje }}</p>
+      @if (mensaje() !== '') {
+        <p class="auth-message" role="alert">{{ mensaje() }}</p>
       }
-      <button class="auth-submit" type="submit" [disabled]="procesando">
-        {{ procesando ? 'Ingresando…' : 'Iniciar sesión' }}
+      <button class="auth-submit" type="submit" [disabled]="procesando()">
+        {{ procesando() ? 'Ingresando…' : 'Iniciar sesión' }}
       </button>
     </form>
     <p class="auth-switch">¿Todavía no tenés cuenta? <a routerLink="/registro">Registrate</a></p>

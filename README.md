@@ -4,7 +4,7 @@ Aplicación web desarrollada como trabajo práctico de Programación IV. Permite
 
 ## Estado del proyecto
 
-La aplicación está desarrollada con Angular, conectada a Supabase, configurada como PWA y desplegada en Firebase Hosting. El flujo de compra usa pagos simulados. El QR generado es informativo: todavía no valida entradas ni entregas del Candy Bar.
+La aplicación está desarrollada con Angular e integrada con Supabase. Está configurada como PWA y Firebase Hosting. El pago es simulado. Se probó la descarga del comprobante PDF con QR, entradas, productos del Candy Bar y totales; también se probó la cancelación con acreditación y uso de crédito.
 
 ## Tecnologías
 
@@ -12,6 +12,7 @@ La aplicación está desarrollada con Angular, conectada a Supabase, configurada
 - TypeScript y formularios reactivos.
 - Supabase Auth y PostgreSQL como backend.
 - `qrcode` para generar una imagen QR de referencia de la compra.
+- `jspdf` para generar el comprobante descargable de la compra.
 - Angular Service Worker para la PWA.
 - Firebase Hosting para el despliegue.
 - CSS propio para una interfaz responsive.
@@ -31,20 +32,24 @@ La aplicación está desarrollada con Angular, conectada a Supabase, configurada
 - Descuento de bienvenida del 20 % para la primera compra de una cuenta registrada.
 - Registro de ventas, entradas y productos en Supabase.
 - Sección «Mis compras» para clientes registrados.
-- Generación de QR informativo al confirmar la compra.
+- Cancelación de compras hasta dos horas antes de la función, con conversión del importe a crédito y liberación de butacas.
+- Aplicación del crédito del cliente en compras futuras.
+- Reporte administrativo sencillo con facturación y entradas vendidas por día.
+- Búsqueda y validación manual de entradas por ID para empleados y administradores.
+- Descarga de un comprobante PDF con datos de la función, butacas, productos, importes y QR informativo.
 
-La compra delega la operación de escritura a la función PostgreSQL `confirmar_compra`, invocada mediante RPC. La disponibilidad de butacas se consulta con `obtener_butacas_ocupadas`. Las funciones y políticas deben existir en el proyecto Supabase.
+La compra delega la escritura a `confirmar_compra_con_credito`, que llama a la función PostgreSQL `confirmar_compra` para registrar venta, entradas y detalle de productos. La cancelación y el crédito se gestionan con RPC; la ocupación de butacas se consulta con `obtener_butacas_ocupadas`. El reporte utiliza `obtener_reporte_facturacion`. Las funciones, permisos y políticas RLS deben estar creados en Supabase.
 
-**Limitaciones actuales:** el QR no invalida entradas ni registra entregas; el pago no procesa cobros reales; y la validación del intervalo entre funciones se realiza en el cliente, por lo que todavía no evita conflictos entre operaciones simultáneas.
+**Limitaciones actuales:** el QR es informativo y no se usa para validar entradas ni registrar entregas de Candy Bar; la validación de entradas se realiza ingresando el ID manualmente. El pago no procesa cobros reales. La validación del intervalo entre funciones se realiza en el cliente y todavía no evita conflictos entre operaciones simultáneas. Algunas funciones pasadas aún pueden mostrarse y deben filtrarse.
 
 ## Funcionalidades pendientes
 
-- Validación de entradas y entrega de Candy Bar por QR, con invalidación tras su uso.
-- Cancelación de compras y generación de crédito.
+- Validación de entradas mediante lectura de QR y registro/invalidación de la entrega de Candy Bar.
 - Cupones configurables, combos, puntos y recompensas.
 - CRUD administrativo de salas, butacas, productos del Candy Bar, categorías y precios.
+- Filtrado de funciones cuya fecha y horario ya pasaron.
 - Alertas de estrenos y sección «Mis películas».
-- Reportes, estadísticas y registro de actividad administrativa.
+- Exportación del reporte diario a PDF y Excel, gráficos semanales/mensuales, producto más vendido y registro de actividad administrativa.
 - Propuestas de películas de clientes y moderación administrativa.
 - Roles configurables por permisos y asignación a usuarios.
 - Lista de espera con notificación push y plazo para comprar.
@@ -68,11 +73,13 @@ La aplicación usa componentes standalone. Las rutas cargan componentes de forma
 ### Decisiones técnicas
 
 - **Supabase:** gestiona autenticación y persistencia. Las políticas RLS y los grants protegen las tablas expuestas a la aplicación.
-- **Compra atómica:** `confirmar_compra` registra venta, entradas y, si corresponde, detalles de productos en una operación de base de datos.
+- **Compra atómica:** `confirmar_compra` registra venta, entradas y, si corresponde, detalles de productos en una operación de base de datos. `confirmar_compra_con_credito` aplica el crédito dentro de la misma transacción.
+- **Cancelación:** `cancelar_compra` verifica la titularidad, el estado de las entradas y el límite de dos horas; luego cancela la venta, libera las butacas y acredita el saldo en una sola operación.
+- **Reporte:** `obtener_reporte_facturacion` devuelve agregados diarios y verifica el rol de administrador; no expone ventas individuales.
 - **Compra invitada:** se permite una sesión anónima de Supabase para comprar sin crear una cuenta. Las compras anónimas no integran el historial de una cuenta registrada.
 - **Sesión:** el cliente Supabase usa `persistSession: false`; la sesión no se conserva al recargar la aplicación.
-- **Roles:** el acceso de administrador se valida con un guard y el rol almacenado en `profiles`. La configuración granular de permisos está pendiente.
-- **QR:** se genera en el navegador y contiene información de referencia. No debe tratarse como una credencial segura de uso único.
+- **Roles:** los guards restringen las pantallas administrativas al administrador y la validación manual de entradas a empleados y administradores. Los permisos de base de datos se aplican aparte mediante RLS y RPC.
+- **PDF y QR:** el comprobante PDF se genera en el navegador. El QR contiene información de referencia, no es una credencial segura de uso único ni valida la entrada.
 - **Pagos:** las opciones actuales son de prueba y no realizan cobros.
 
 ## Requisitos previos
@@ -81,7 +88,7 @@ La aplicación usa componentes standalone. Las rutas cargan componentes de forma
 - Proyecto Supabase con las tablas, relaciones, permisos RLS, grants y funciones RPC que consume la aplicación.
 - Credenciales publicables de Supabase.
 
-La estructura SQL completa de Supabase no está incluida en este repositorio. La función `confirmar_compra` debe insertar la venta, las entradas y los productos de `detalle_venta` de forma consistente.
+La estructura SQL completa de Supabase no está incluida en este repositorio. Los scripts disponibles en `supabase/` cubren crédito/cancelación y el reporte. También deben existir `confirmar_compra`, `obtener_butacas_ocupadas`, `validar_entrada`, sus permisos y las políticas RLS correspondientes.
 
 ## Configuración local
 
@@ -135,16 +142,18 @@ La estructura SQL completa de Supabase no está incluida en este repositorio. La
 | `/mis-compras` | Historial de compras de una cuenta registrada. |
 | `/admin/peliculas` | Gestión administrativa de películas. |
 | `/admin/funciones` | Gestión administrativa de funciones. |
+| `/admin/reportes` | Facturación y entradas vendidas por día. |
+| `/validar-entradas` | Búsqueda y validación manual de entradas por ID para empleados y administradores. |
 | `/login` y `/registro` | Acceso y creación de cuenta. |
 
 ## Temas de la cursada
 
 - **Rutas y lazy loading:** `src/app/app.routes.ts` y rutas hijas de películas y selección de butacas.
-- **Servicios:** películas, funciones, salas, butacas, carrito, autenticación, perfiles, reseñas y ventas.
+- **Servicios:** películas, funciones, salas, butacas, carrito, autenticación, perfiles, reseñas, ventas, entradas y reportes.
 - **Input/Output:** el componente de película recibe una película y emite el evento de selección.
 - **Supabase:** autenticación, consultas y llamadas RPC.
 - **Firebase:** Hosting y publicación de la aplicación.
-- **Guards:** rutas de compras y administración.
+- **Guards:** rutas de compras, administración y validación para empleados.
 - **Pipes:** formato de importes con `CurrencyPipe` y promedio de reseñas con `DecimalPipe`.
 - **Formularios reactivos y Validators:** registro, validación de edad, películas, funciones y reseñas.
 - **Directivas:** control de flujo moderno de Angular (`@if`, `@for`) y enlaces de formulario.

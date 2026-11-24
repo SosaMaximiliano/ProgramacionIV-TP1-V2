@@ -1,0 +1,27 @@
+<form (ngSubmit)="buscarEntrada()">
+  <input
+    type="number"
+    name="inputId"
+    placeholder="ID de entrada"
+    min="1"
+    required
+    [(ngModel)]="inputId"
+  />
+  <button type="submit" [disabled]="cargando()">Buscar</button>
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
+
+  @if (entrada()) {
+    <p>Fila: {{ entrada()?.fila }}</p>
+    <p>Asiento: {{ entrada()?.asiento }}</p>
+    <p>Precio: {{ entrada()?.precio | currency: 'ARS' }}</p>
+    <p>Estado: {{ entrada()?.estadoEntrada }}</p>
+    <div>
+      <button type="button" (click)="validarEntrada()" [disabled]="cargando()">Validar</button>
+    </div>
+  } @else if (cargando()) {
+    <p>Buscando entrada...</p>
+  }
+</form>

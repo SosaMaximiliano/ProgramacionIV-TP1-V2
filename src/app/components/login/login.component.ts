@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -12,8 +12,8 @@ import { RouterLink, Router } from '@angular/router';
 export class LoginComponent {
   correo = '';
   password = '';
-  mensaje = '';
-  procesando = false;
+  mensaje = signal('');
+  procesando = signal(false);
 
   constructor(
     private router: Router,
@@ -21,8 +21,8 @@ export class LoginComponent {
   ) {}
 
   async iniciarSesion(): Promise<void> {
-    this.mensaje = '';
-    this.procesando = true;
+    this.mensaje.set('');
+    this.procesando.set(true);
 
     try {
       const datosCompra = history.state?.datosCompra;
@@ -37,10 +37,10 @@ export class LoginComponent {
         await this.router.navigateByUrl('/inicio');
       }
     } catch (error) {
-      this.mensaje = 'No se pudo iniciar sesión. Revisá el correo y la contraseña.';
-      console.log(error);
+      this.mensaje.set('No se pudo iniciar sesión. Revisá el correo y la contraseña.');
+      console.log(this.mensaje, error);
     } finally {
-      this.procesando = false;
+      this.procesando.set(false);
     }
   }
 }

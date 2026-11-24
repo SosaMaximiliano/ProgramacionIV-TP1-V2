@@ -19,6 +19,9 @@ export class SalaService {
   }
 
   private mapearSala(sala: any): Sala {
+    // Indicar `Sala` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido de la tabla.
+    // Este mapeo asigna a cada propiedad el valor de la columna correspondiente.
     return {
       id: sala.id,
       nombre: sala.nombre,

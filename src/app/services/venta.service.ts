@@ -1,5 +1,5 @@
 import { Service } from '@angular/core';
-import { FormaPago, CompraVista } from '../models/venta.model';
+import { FormaPago, CompraVista, Venta } from '../models/venta.model';
 import { getSupabaseClient } from './supabase-client';
 
 interface ButacaCompra {
@@ -106,6 +106,9 @@ export class VentaService {
 
     if (error) throw error;
 
+    // Indicar `CompraVista[]` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido esperado.
+    // Este mapeo asigna los valores de las columnas y relaciones al modelo de la aplicación.
     return (data ?? []).map((venta) => ({
       id: venta.id,
       fechaVenta: venta.fecha_venta,
@@ -141,7 +144,9 @@ export class VentaService {
     }));
   }
 
-  async cancelarCompra(ventaId: number): Promise<{ creditoAcreditado: number; saldoCredito: number }> {
+  async cancelarCompra(
+    ventaId: number,
+  ): Promise<{ creditoAcreditado: number; saldoCredito: number }> {
     const supabase = await getSupabaseClient();
     const { data, error } = await supabase.rpc('cancelar_compra', {
       p_venta_id: ventaId,
@@ -181,5 +186,29 @@ export class VentaService {
     if (error) throw error;
 
     return count === 0 ? 20 : 0;
+  }
+
+  async obtenerUna(id: number): Promise<Venta | null> {
+    const supabase = await getSupabaseClient();
+    const { data, error } = await supabase.from('ventas').select('*').eq('id', id).maybeSingle();
+
+    if (error) return null;
+
+    // Indicar `Venta` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido de la tabla.
+    // Este mapeo asigna a cada propiedad el valor de su columna correspondiente.
+    return {
+      id: data.id,
+      clienteId: data.cliente_id,
+      fechaVenta: data.fecha_venta,
+      subtotal: Number(data.subtotal),
+      descuentoPorcentaje: data.descuento_porcentaje,
+      descuentoImporte: Number(data.descuento_importe),
+      precioFinal: Number(data.precio_final),
+      formaPago: data.forma_pago,
+      estaPagado: data.esta_pagado,
+      estaCancelada: data.esta_cancelada,
+      entradas: [],
+    };
   }
 }

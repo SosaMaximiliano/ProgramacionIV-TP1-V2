@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/usuario-registrado.guard';
 import { administradorGuard } from './guards/administrador.guard';
+import { empleadoGuard } from './guards/empleado.guard';
 
 export const routes: Routes = [
   {
@@ -84,6 +85,14 @@ export const routes: Routes = [
         (m) => m.ReporteFacturacionComponent,
       ),
     canActivate: [administradorGuard],
+  },
+  {
+    path: 'validar-entradas',
+    loadComponent: () =>
+      import('./components/validar-entrada/validar-entrada.component').then(
+        (m) => m.ValidarEntradaComponent,
+      ),
+    canActivate: [empleadoGuard],
   },
   {
     path: '**',

@@ -20,6 +20,9 @@ export class ReporteService {
     const { data, error } = await supabase.rpc('obtener_reporte_facturacion');
     if (error) throw error;
 
+    // Indicar `FacturacionDiaria[]` como tipo de retorno no sirve para manejar las columnas
+    // que devuelve Supabase: puedo acceder a las propiedades, pero no tienen el contenido esperado.
+    // Este mapeo asigna las columnas y convierte los valores numéricos que pueden venir como texto.
     return ((data ?? []) as ReporteDesdeSupabase[]).map((fila) => ({
       fecha: fila.fecha,
       facturacion: Number(fila.facturacion),

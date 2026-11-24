@@ -67,6 +67,9 @@ export class FuncionService {
   }
 
   private mapearFuncion(funcion: any): Funcion {
+    // Indicar `Funcion` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido de la tabla.
+    // Este mapeo asigna a `peliculaId` y `salaId` los valores de sus columnas correspondientes.
     return {
       id: funcion.id,
       peliculaId: funcion.pelicula_id,

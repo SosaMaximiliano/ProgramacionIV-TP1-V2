@@ -10,6 +10,9 @@ export class PeliculaService {
     const supabase = await getSupabaseClient();
     const { data, error } = await supabase.from('peliculas').select('*').order('id');
     if (error) throw error;
+    // Indicar `Pelicula[]` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido de la tabla.
+    // Este mapeo asigna a cada propiedad el valor de su columna correspondiente.
     return (data ?? []).map((pelicula) => ({
       id: pelicula.id,
       nombre: pelicula.nombre,
@@ -27,6 +30,9 @@ export class PeliculaService {
     const supabase = await getSupabaseClient();
     const { data, error } = await supabase.from('peliculas').select('*').eq('id', id).maybeSingle();
     if (error) throw error;
+    // Indicar `Pelicula` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido de la tabla.
+    // Este mapeo asigna a cada propiedad el valor de su columna correspondiente.
     return {
       id: data.id,
       nombre: data.nombre,

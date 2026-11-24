@@ -55,6 +55,9 @@ export class ResenaService {
   }
 
   private mapear(row: any): Resena {
+    // Indicar `Resena` como tipo de retorno no sirve para manejar las columnas que devuelve
+    // Supabase: puedo acceder a las propiedades, pero no tienen el contenido de la tabla.
+    // Este mapeo asigna a `peliculaId` y `usuarioId` los valores de sus columnas correspondientes.
     return {
       id: row.id,
       peliculaId: row.pelicula_id,

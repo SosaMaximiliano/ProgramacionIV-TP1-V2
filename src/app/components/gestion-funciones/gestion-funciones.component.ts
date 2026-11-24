@@ -102,11 +102,14 @@ export class GestionFuncionesComponent implements OnInit {
   }
 
   private instanteEnMinutos(fecha: string, hora: string): number {
-    return Date.parse(`${fecha}T${hora}:00`) / 60_000;
+    const horaSinSegundos = hora.slice(0, 5);
+    return Date.parse(`${fecha}T${horaSinSegundos}:00`) / 60_000;
   }
 
   nombrePelicula(id: number): string {
-    return this.peliculas().find((pelicula) => pelicula.id === id)?.nombre ?? 'Película no disponible';
+    return (
+      this.peliculas().find((pelicula) => pelicula.id === id)?.nombre ?? 'Película no disponible'
+    );
   }
 
   nombreSala(id: number): string {
@@ -151,7 +154,13 @@ export class GestionFuncionesComponent implements OnInit {
       await this.cargarDatos();
     } catch (error) {
       console.error(error);
-      this.error.set('No se pudo guardar la función. Revisá los permisos y las restricciones de Supabase.');
+
+      const mensaje =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? String(error.message)
+          : 'No se pudo guardar la función.';
+
+      this.error.set(mensaje);
     } finally {
       this.guardando.set(false);
     }
@@ -197,7 +206,9 @@ export class GestionFuncionesComponent implements OnInit {
       this.mensaje.set('La función se eliminó.');
     } catch (error) {
       console.error(error);
-      this.error.set('No se pudo eliminar la función. Puede tener entradas u otros registros asociados.');
+      this.error.set(
+        'No se pudo eliminar la función. Puede tener entradas u otros registros asociados.',
+      );
     } finally {
       this.eliminandoId.set(null);
     }

@@ -18,6 +18,8 @@ export class MisComprasComponent implements OnInit {
   error = signal('');
   mensajeCancelacion = signal('');
   cancelandoId = signal<number | null>(null);
+  compraPendienteCancelar = signal<ComprasUsuario[number] | null>(null);
+  errorCancelacionModal = signal('');
 
   constructor(private ventaService: VentaService) {}
 
@@ -52,25 +54,37 @@ export class MisComprasComponent implements OnInit {
     return Number.isFinite(inicio) && inicio - Date.now() >= 2 * 60 * 60 * 1000;
   }
 
-  async cancelarCompra(venta: ComprasUsuario[number]): Promise<void> {
+  solicitarCancelacion(venta: ComprasUsuario[number]): void {
     if (!this.puedeCancelar(venta) || this.cancelandoId() !== null) return;
-    const confirmado = window.confirm(
-      `¿Cancelar la compra #${venta.id}? Se acreditarán ${venta.importeAcreditable.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })} para futuras compras y no se reintegrará en dinero.`,
-    );
-    if (!confirmado) return;
+
+    this.mensajeCancelacion.set('');
+    this.errorCancelacionModal.set('');
+    this.compraPendienteCancelar.set(venta);
+  }
+
+  cerrarModalCancelacion(): void {
+    if (this.cancelandoId() !== null) return;
+    this.compraPendienteCancelar.set(null);
+    this.errorCancelacionModal.set('');
+  }
+
+  async confirmarCancelacion(): Promise<void> {
+    const venta = this.compraPendienteCancelar();
+    if (!venta || !this.puedeCancelar(venta) || this.cancelandoId() !== null) return;
 
     this.cancelandoId.set(venta.id);
-    this.mensajeCancelacion.set('');
+    this.errorCancelacionModal.set('');
     try {
       const resultado = await this.ventaService.cancelarCompra(venta.id);
       this.saldoCredito.set(resultado.saldoCredito);
       this.mensajeCancelacion.set(
         `Compra cancelada. Se acreditaron ${resultado.creditoAcreditado.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}.`,
       );
+      this.compraPendienteCancelar.set(null);
       this.misCompras.set(await this.ventaService.obtenerMisCompras());
     } catch (error) {
       console.error(error);
-      this.mensajeCancelacion.set(
+      this.errorCancelacionModal.set(
         typeof error === 'object' && error !== null && 'message' in error
           ? String(error.message)
           : 'No se pudo cancelar la compra. Intentá nuevamente.',
