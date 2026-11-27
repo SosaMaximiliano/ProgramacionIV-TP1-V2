@@ -1,50 +1,12 @@
-import { Service } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { FormaPago, CompraVista, Venta } from '../models/venta.model';
 import { getSupabaseClient } from './supabase-client';
-
-interface ButacaCompra {
-  fila: string;
-  asiento: number;
-  precio: number;
-}
-
-interface ProductoCompra {
-  productoId: string;
-  cantidad: number;
-  precioUnitario: number;
-}
-
-interface DatosCompra {
-  funcionId: number;
-  butacas: ButacaCompra[];
-  metodoPago: FormaPago;
-  total: number;
-  productos: ProductoCompra[];
-}
-
-interface EntradaDesdeSupabase {
-  id: number;
-  fila: string;
-  asiento: number;
-  precio: number;
-  funcion_id: number;
-  funcion: {
-    fecha: string;
-    hora: string;
-    pelicula: string;
-  };
-}
-
-interface DetalleProductoDesdeSupabase {
-  id: number;
-  producto_id: string;
-  cantidad: number;
-  precio_unitario: number;
-  producto: {
-    nombre: string;
-    categoria: string;
-  } | null;
-}
+import { Cupon } from '../models/cupon.model';
+import { Butaca } from '../models/butaca.model';
+import { Producto, DetalleProductoDesdeSupabase } from '../models/producto.model';
+import { Entrada } from '../models/entrada.model';
+import { DatosCompra } from '../models/venta.model';
+import { EntradaDesdeSupabase } from '../models/entrada.model';
 
 @Service()
 export class VentaService {
@@ -68,7 +30,9 @@ export class VentaService {
         precio_unitario: item.precioUnitario,
       })),
       p_forma_pago: compra.metodoPago,
+      p_usar_saldo: compra.usarSaldo,
       p_total: compra.total,
+      p_codigo_cupon: compra.codigoCupon,
     });
 
     if (error) throw error;
@@ -91,7 +55,7 @@ export class VentaService {
     const { data, error } = await supabase
       .from('ventas')
       .select(
-        `*,entradas(*,funcion:funciones(fecha,hora,pelicula:peliculas(nombre))),
+        `*,entradas(*,funcion:funciones(fecha,hora,pelicula:peliculas(id,nombre))),
              detalle_venta(
               id,
               producto_id,
@@ -123,6 +87,7 @@ export class VentaService {
         asiento: entrada.asiento,
         precio: entrada.precio,
         funcionId: entrada.funcion_id,
+        estadoEntrada: entrada.estado_entrada,
         funcion: entrada.funcion
           ? {
               fecha: entrada.funcion.fecha,
@@ -166,7 +131,10 @@ export class VentaService {
     return Number(data ?? 0);
   }
 
-  async obtenerDescuentoPrimeraCompra(): Promise<number> {
+  async obtenerDescuentoAplicable(): Promise<{
+    descuentoPrimeraCompra: number;
+    descuentoMayores: number;
+  }> {
     const supabase = await getSupabaseClient();
     const {
       data: { user },
@@ -174,18 +142,41 @@ export class VentaService {
     } = await supabase.auth.getUser();
 
     if (authError) throw authError;
-    if (!user || user.is_anonymous) return 0;
+    if (!user || user.is_anonymous) {
+      return { descuentoPrimeraCompra: 0, descuentoMayores: 0 };
+    }
 
-    const { count, error } = await supabase
-      .from('ventas')
-      .select('id', { count: 'exact', head: true })
-      .eq('cliente_id', user.id)
-      .eq('esta_pagado', true)
-      .eq('esta_cancelada', false);
+    const [perfilResultado, ventasResultado] = await Promise.all([
+      supabase.from('profiles').select('fecha_nacimiento').eq('id', user.id).maybeSingle(),
+      supabase
+        .from('ventas')
+        .select('id', { count: 'exact', head: true })
+        .eq('cliente_id', user.id)
+        .eq('esta_pagado', true)
+        .eq('esta_cancelada', false),
+    ]);
 
-    if (error) throw error;
+    if (perfilResultado.error) throw perfilResultado.error;
+    if (ventasResultado.error) throw ventasResultado.error;
 
-    return count === 0 ? 20 : 0;
+    const descuentoPrimeraCompra = ventasResultado.count === 0 ? 20 : 0;
+    const fechaNacimiento = perfilResultado.data?.fecha_nacimiento;
+    const descuentoMayores = fechaNacimiento && this.esMayorDe50(fechaNacimiento) ? 10 : 0;
+
+    return { descuentoPrimeraCompra, descuentoMayores };
+  }
+
+  private esMayorDe50(fechaNacimiento: string): boolean {
+    const [anio, mes, dia] = fechaNacimiento.split('-').map(Number);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    let edad = hoy.getFullYear() - anio;
+    const cumpleEsteAnio = new Date(hoy.getFullYear(), mes - 1, dia);
+
+    if (hoy < cumpleEsteAnio) edad--;
+
+    return edad > 50;
   }
 
   async obtenerUna(id: number): Promise<Venta | null> {
@@ -209,6 +200,23 @@ export class VentaService {
       estaPagado: data.esta_pagado,
       estaCancelada: data.esta_cancelada,
       entradas: [],
+    };
+  }
+
+  async validarCupon(codigo: string): Promise<Cupon> {
+    const supabase = await getSupabaseClient();
+    const { data, error } = await supabase.rpc('validar_cupon', {
+      p_codigo: codigo.trim(),
+    });
+
+    if (error) throw error;
+    if (!data) throw new Error('Supabase no devolvió los datos del cupón.');
+
+    return {
+      id: data.id,
+      codigo: data.codigo,
+      descripcion: data.descripcion,
+      porcentaje: data.porcentaje,
     };
   }
 }

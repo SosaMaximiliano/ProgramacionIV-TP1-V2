@@ -1,3 +1,4 @@
+import { UsuarioService } from './../../services/usuario.service';
 import { Pelicula } from './../../models/pelicula.model';
 import { Component, computed, signal } from '@angular/core';
 import { PeliculaService } from '../../services/pelicula.service';
@@ -32,15 +33,21 @@ export class DetallePeliculaComponent {
       : null;
   });
   formularioResena = new FormGroup({
-    puntuacion: new FormControl(5, { nonNullable: true, validators: [Validators.required, Validators.min(1), Validators.max(5)] }),
+    puntuacion: new FormControl(5, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1), Validators.max(5)],
+    }),
     comentario: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(300)] }),
   });
+  puedeResenar = signal(false);
+  esUsuarioRegistrado = signal(false);
 
   constructor(
     private readonly peliculaService: PeliculaService,
     private readonly funcionService: FuncionService,
     private readonly resenaService: ResenaService,
     public readonly supabaseService: SupabaseService,
+    public readonly usuarioService: UsuarioService,
     private route: ActivatedRoute,
     private router: Router,
   ) {}
@@ -96,9 +103,18 @@ export class DetallePeliculaComponent {
     }
   }
 
-  puedeResenar(): boolean {
+  async verificarReseña(): Promise<boolean> {
     const usuario = this.supabaseService.usuarioActual();
-    return !!usuario && !usuario.is_anonymous;
+    if (!usuario) return false;
+    this.esUsuarioRegistrado.set(!!usuario);
+    const peliculas = this.usuarioService.obtenerPeliculasVistas();
+    const idPelicula = Number(this.route.snapshot.paramMap.get('id'));
+
+    return !!(
+      usuario &&
+      !usuario.is_anonymous &&
+      (await peliculas).some((e) => e.id === idPelicula)
+    );
   }
 
   async guardarResena(): Promise<void> {
@@ -133,7 +149,9 @@ export class DetallePeliculaComponent {
       await this.cargarResenas(pelicula.id);
     } catch (error) {
       console.error(error);
-      this.errorResenas.set('No se pudo guardar la reseña. Revisá tu sesión y los permisos de Supabase.');
+      this.errorResenas.set(
+        'No se pudo guardar la reseña. Revisá tu sesión y los permisos de Supabase.',
+      );
     } finally {
       this.guardandoResena.set(false);
     }
@@ -143,7 +161,8 @@ export class DetallePeliculaComponent {
     this.router.navigate(['/seleccionar-butacas', funcion.id]);
   }
 
-  ngOnInit(): void {
-    this.cargarDetalle();
+  async ngOnInit(): Promise<void> {
+    await this.cargarDetalle();
+    this.puedeResenar.set(await this.verificarReseña());
   }
 }

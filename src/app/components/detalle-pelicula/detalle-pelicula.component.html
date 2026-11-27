@@ -41,30 +41,45 @@
         <p class="reviews-error" role="alert">{{ errorResenas() }}</p>
       }
 
-      @if (puedeResenar()) {
-        <form class="review-form" [formGroup]="formularioResena" (ngSubmit)="guardarResena()">
-          <label for="puntuacion">Tu calificación</label>
-          <select id="puntuacion" formControlName="puntuacion">
-            <option [ngValue]="5">★★★★★ — Excelente</option>
-            <option [ngValue]="4">★★★★☆ — Muy buena</option>
-            <option [ngValue]="3">★★★☆☆ — Buena</option>
-            <option [ngValue]="2">★★☆☆☆ — Regular</option>
-            <option [ngValue]="1">★☆☆☆☆ — Mala</option>
-          </select>
-
-          <label for="comentario">Comentario breve (opcional)</label>
-          <textarea id="comentario" rows="3" maxlength="300" formControlName="comentario"
-            placeholder="¿Qué te pareció la película?"></textarea>
-          <small>{{ formularioResena.controls.comentario.value.length }}/300 caracteres</small>
-          <button type="submit" [disabled]="guardandoResena() || formularioResena.invalid">
-            {{ guardandoResena() ? 'Guardando…' : resenaPropia() ? 'Actualizar reseña' : 'Publicar reseña' }}
-          </button>
-          @if (mensajeResena()) { <p class="review-message" role="status">{{ mensajeResena() }}</p> }
-        </form>
-      } @else {
+      @if (!esUsuarioRegistrado()) {
         <p class="review-login-message">
           <a routerLink="/login">Ingresá con tu cuenta</a> para calificar y reseñar esta película.
         </p>
+      } @else {
+        @if (puedeResenar()) {
+          <form class="review-form" [formGroup]="formularioResena" (ngSubmit)="guardarResena()">
+            <label for="puntuacion">Tu calificación</label>
+            <select id="puntuacion" formControlName="puntuacion">
+              <option [ngValue]="5">★★★★★ — Excelente</option>
+              <option [ngValue]="4">★★★★☆ — Muy buena</option>
+              <option [ngValue]="3">★★★☆☆ — Buena</option>
+              <option [ngValue]="2">★★☆☆☆ — Regular</option>
+              <option [ngValue]="1">★☆☆☆☆ — Mala</option>
+            </select>
+
+            <label for="comentario">Comentario breve (opcional)</label>
+            <textarea
+              id="comentario"
+              rows="3"
+              maxlength="300"
+              formControlName="comentario"
+              placeholder="¿Qué te pareció la película?"
+            ></textarea>
+            <small>{{ formularioResena.controls.comentario.value.length }}/300 caracteres</small>
+            <button type="submit" [disabled]="guardandoResena() || formularioResena.invalid">
+              {{
+                guardandoResena()
+                  ? 'Guardando…'
+                  : resenaPropia()
+                    ? 'Actualizar reseña'
+                    : 'Publicar reseña'
+              }}
+            </button>
+            @if (mensajeResena()) {
+              <p class="review-message" role="status">{{ mensajeResena() }}</p>
+            }
+          </form>
+        }
       }
 
       <div class="reviews-list">
@@ -72,7 +87,9 @@
           <article class="review-card">
             <div class="review-card-heading">
               <strong>Espectador</strong>
-              <span aria-label="Calificación">{{ '★'.repeat(resena.puntuacion) }}{{ '☆'.repeat(5 - resena.puntuacion) }}</span>
+              <span aria-label="Calificación"
+                >{{ '★'.repeat(resena.puntuacion) }}{{ '☆'.repeat(5 - resena.puntuacion) }}</span
+              >
             </div>
             @if (resena.comentario) {
               <p>{{ resena.comentario }}</p>
@@ -82,7 +99,9 @@
           </article>
         } @empty {
           @if (!errorResenas()) {
-            <p class="review-message">Todavía no hay reseñas. Podés ser la primera persona en opinar.</p>
+            <p class="review-message">
+              Todavía no hay reseñas. Podés ser la primera persona en opinar.
+            </p>
           }
         }
       </div>
@@ -103,7 +122,10 @@
             <span class="showtime-icon" aria-hidden="true">◷</span>
             <div class="showtime-info">
               <strong>{{ funcion.hora }}</strong>
-              <span>{{ funcion.fecha }} · Sala {{ funcion.salaId }} · {{ funcion.proyeccion }} · {{ funcion.idioma }}</span>
+              <span
+                >{{ funcion.fecha }} · Sala {{ funcion.salaId }} · {{ funcion.proyeccion }} ·
+                {{ funcion.idioma }}</span
+              >
             </div>
             <button (click)="seleccionarFuncion(funcion)">
               Elegir <span aria-hidden="true">→</span>

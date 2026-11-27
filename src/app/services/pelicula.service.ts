@@ -1,4 +1,4 @@
-import { Service } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import { Pelicula } from '../models/pelicula.model';
 import { getSupabaseClient } from './supabase-client';
 

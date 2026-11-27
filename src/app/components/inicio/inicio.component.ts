@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { PeliculaService } from '../../services/pelicula.service';
 import { Pelicula } from '../../models/pelicula.model';
 import { PeliculaComponent } from '../pelicula/pelicula.component';
+import { UsuarioService } from '../../services/usuario.service';
 
 @Component({
   imports: [RouterLink, PeliculaComponent],
@@ -19,28 +20,34 @@ export class InicioComponent implements OnInit {
   constructor(
     private peliculaService: PeliculaService,
     private router: Router,
+    private usuarioService: UsuarioService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const [resultadoTop, resultadoCatalogo] = await Promise.allSettled([
-      this.peliculaService.obtenerTresMasVendidas(),
-      this.peliculaService.obtenerTodas(),
-    ]);
+    const topTres = await this.peliculaService.obtenerTresMasVendidas();
+    const peliculas = await this.peliculaService.obtenerTodas();
+    // const proximas = this.filtrarProximas(peliculas);
+    const proximas = peliculas.filter((p) => p.estaDisponible === false && this.esProxima(p));
 
-    if (resultadoTop.status === 'fulfilled') {
-      this.topPeliculas.set(resultadoTop.value as Pelicula[]);
-    } else {
-      console.error('Error al cargar películas más vendidas:', resultadoTop.reason);
-    }
-
-    if (resultadoCatalogo.status === 'fulfilled') {
-      this.peliculasProximas.set(this.filtrarProximas(resultadoCatalogo.value));
-    } else {
-      console.error('Error al cargar próximos estrenos:', resultadoCatalogo.reason);
-      this.errorProximas.set('No pudimos cargar los próximos estrenos.');
-    }
+    this.peliculasProximas.set(
+      proximas.sort((a, b) => a.fechaEstreno.localeCompare(b.fechaEstreno)),
+    );
+    this.topPeliculas.set(topTres);
 
     this.cargandoProximas.set(false);
+  }
+
+  private esProxima(pelicula: Pelicula) {
+    const hoy = new Date();
+    const fechaHoy = [
+      hoy.getFullYear(),
+      String(hoy.getMonth() + 1).padStart(2, '0'),
+      String(hoy.getDate()).padStart(2, '0'),
+    ];
+
+    const fechaEstreno = pelicula.fechaEstreno.replaceAll('-', '');
+
+    return +fechaEstreno > +fechaHoy.join('');
   }
 
   private filtrarProximas(peliculas: Pelicula[]): Pelicula[] {
@@ -71,5 +78,9 @@ export class InicioComponent implements OnInit {
 
   seleccionarPelicula(pelicula: Pelicula): void {
     this.router.navigate(['/detalle', pelicula.id]);
+  }
+
+  prueba() {
+    this.usuarioService.obtenerPeliculasVistas();
   }
 }

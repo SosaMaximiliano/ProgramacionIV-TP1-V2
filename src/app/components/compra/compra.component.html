@@ -46,14 +46,14 @@
                 <span class="seat-badge" [class.vip]="butaca.tipo === 'vip'">
                   {{ butaca.fila }}{{ butaca.numero }}
                 </span>
-                <span>{{ butaca.tipo === 'vip' ? 'Butaca VIP' : 'Butaca general' }}</span>
+                <span>Butaca {{ butaca.tipo }}</span>
               </div>
               <strong>{{ precioButaca(butaca) | currency: 'ARS' }}</strong>
             </li>
           }
         </ul>
 
-        <div>
+        <div class="candy-box">
           <button type="button" class="primary-action" routerLink="/candy-bar">
             Agregar productos del Candy Bar
           </button>
@@ -75,16 +75,71 @@
           <strong>{{ totalCompra() | currency: 'ARS' }}</strong>
         </div>
 
-        @if (descuentoPorcentaje() > 0) {
+        @if (esUsuarioRegistrado()) {
+          <div class="checkout-coupon">
+            <label for="codigo-cupon">¿Tenés un cupón de descuento...?</label>
+
+            <div>
+              <input
+                id="codigo-cupon"
+                type="text"
+                //input y value son propiedades del objeto input de html.
+                //Por cada letra que escribo se ejecuta el evento input
+                (input)="actualizarCodigoCupon($event)"
+                //Cada letra que se recibe se pasa a codigoCupon
+                [value]="codigoCupon()"
+                [disabled]="validandoCupon() || cuponAplicado() !== null"
+              />
+
+              @if (!cuponAplicado()) {
+                <button
+                  type="button"
+                  (click)="aplicarCupon()"
+                  [disabled]="validandoCupon() || !codigoCupon().trim()"
+                >
+                  {{ validandoCupon() ? 'Validando…' : 'Aplicar' }}
+                </button>
+              } @else {
+                <button type="button" (click)="quitarCupon()">Quitar</button>
+              }
+            </div>
+
+            @if (errorCupon()) {
+              <p role="alert">{{ errorCupon() }}</p>
+            }
+
+            @if (cuponAplicado()) {
+              <p role="status">
+                Cupón {{ cuponAplicado()?.codigo }} aplicado: {{ cuponAplicado()?.porcentaje }} %
+              </p>
+            }
+          </div>
+        }
+
+        @if (descuentoPrimeraCompra() > 0) {
           <div class="checkout-total">
-            <span>Descuento primera compra ({{ descuentoPorcentaje() }} %)</span>
-            <strong>-{{ importeDescuento() | currency: 'ARS' }}</strong>
+            <span>Descuento de primera compra ({{ descuentoPrimeraCompra() }} %)</span>
+            <strong>-{{ importeDescuentoPrimeraCompra() | currency: 'ARS' }}</strong>
+          </div>
+        }
+
+        @if (descuentoMayoresDe50() > 0) {
+          <div class="checkout-total">
+            <span>Descuento para mayores de 50 ({{ descuentoMayoresDe50() }} %)</span>
+            <strong>-{{ importeDescuentoMayoresDe50() | currency: 'ARS' }}</strong>
+          </div>
+        }
+
+        @if (cuponAplicado(); as cupon) {
+          <div class="checkout-total">
+            <span>Cupón {{ cupon.codigo }} ({{ cupon.porcentaje }} %)</span>
+            <strong>-{{ importeDescuentoCupon() | currency: 'ARS' }}</strong>
           </div>
         }
 
         @if (creditoAplicado() > 0) {
           <div class="checkout-total">
-            <span>Crédito aplicado (saldo disponible: {{ saldoCredito() | currency: 'ARS' }})</span>
+            <span>Saldo a favor</span>
             <strong>-{{ creditoAplicado() | currency: 'ARS' }}</strong>
           </div>
         }
@@ -101,7 +156,8 @@
               type="button"
               class="payment-option"
               [class.selected]="metodoPago() === formasPago.Debito"
-              (click)="metodoPago.set(formasPago.Debito)"
+              [disabled]="usarSaldo() && totalFinalPago() === 0"
+              (click)="seleccionarMetodoPago(formasPago.Debito)"
             >
               <span>Débito</span><small>Simulado</small>
             </button>
@@ -109,7 +165,8 @@
               type="button"
               class="payment-option"
               [class.selected]="metodoPago() === formasPago.Credito"
-              (click)="metodoPago.set(formasPago.Credito)"
+              [disabled]="usarSaldo() && totalFinalPago() === 0"
+              (click)="seleccionarMetodoPago(formasPago.Credito)"
             >
               <span>Crédito</span><small>Simulado</small>
             </button>
@@ -117,7 +174,8 @@
               type="button"
               class="payment-option"
               [class.selected]="metodoPago() === formasPago.Efectivo"
-              (click)="metodoPago.set(formasPago.Efectivo)"
+              [disabled]="usarSaldo() && totalFinalPago() === 0"
+              (click)="seleccionarMetodoPago(formasPago.Efectivo)"
             >
               <span>Efectivo</span><small>Simulado</small>
             </button>
@@ -125,10 +183,24 @@
               type="button"
               class="payment-option"
               [class.selected]="metodoPago() === formasPago.Transferencia"
-              (click)="metodoPago.set(formasPago.Transferencia)"
+              [disabled]="usarSaldo() && totalFinalPago() === 0"
+              (click)="seleccionarMetodoPago(formasPago.Transferencia)"
             >
               <span>Transferencia</span><small>Simulada</small>
             </button>
+
+            @if (saldoCredito() > 0) {
+              <button
+                type="button"
+                class="payment-option"
+                [class.selected]="usarSaldo()"
+                [attr.aria-pressed]="usarSaldo()"
+                (click)="alternarUsoSaldo()"
+              >
+                <span>Usar saldo disponible</span>
+                <small>{{ saldoCredito() | currency: 'ARS' }}</small>
+              </button>
+            }
           </fieldset>
 
           <p class="checkout-note">
@@ -142,7 +214,7 @@
           <button
             type="button"
             class="primary-action"
-            [disabled]="metodoPago() === null || procesando()"
+            [disabled]="procesando() || (totalFinalPago() > 0 && metodoPago() === null)"
             (click)="confirmarCompra()"
           >
             {{ procesando() ? 'Registrando compra…' : 'Aceptar pago de prueba' }}
@@ -176,7 +248,9 @@
                 </button>
               } @else if (errorQr()) {
                 <p class="checkout-error" role="alert">{{ errorQr() }}</p>
-                <p class="checkout-error">No se puede descargar el comprobante hasta contar con el QR.</p>
+                <p class="checkout-error">
+                  No se puede descargar el comprobante hasta contar con el QR.
+                </p>
               } @else {
                 <p>Generando el código QR…</p>
               }

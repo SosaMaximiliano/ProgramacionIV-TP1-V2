@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { Butaca } from '../../models/butaca.model';
 import { Funcion } from '../../models/funcion.model';
 import { CurrencyPipe } from '@angular/common';
@@ -8,6 +8,8 @@ import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../services/carrito.service';
 import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
+import { Usuario } from '../../models/usuario.model';
+import { getSupabaseClient } from '../../services/supabase-client';
 
 @Component({
   imports: [CurrencyPipe, RouterLink],
@@ -22,6 +24,7 @@ export class CompraComponent {
   butacas: Butaca[] = [];
   total = 0;
   metodoPago = signal<FormaPago | null>(null);
+  usarSaldo = signal(false);
   procesando = signal(false);
   errorCompra = signal('');
   compraConfirmada = signal(false);
@@ -31,6 +34,16 @@ export class CompraComponent {
   errorQr = signal('');
   errorPdf = signal('');
   descargandoPdf = signal(false);
+  codigoCupon = signal('');
+  cuponAplicado = signal<{
+    id: number;
+    codigo: string;
+    descripcion: string | null;
+    porcentaje: number;
+  } | null>(null);
+  validandoCupon = signal(false);
+  errorCupon = signal('');
+  esUsuarioRegistrado = signal(false);
 
   constructor(
     private ventaService: VentaService,
@@ -61,8 +74,28 @@ export class CompraComponent {
     return butaca.tipo === 'vip' ? precioBase + RECARGO_VIP : precioBase;
   }
 
+  alternarUsoSaldo(): void {
+    const usar = !this.usarSaldo();
+    this.usarSaldo.set(usar);
+
+    if (usar && this.totalFinalPago() === 0) {
+      this.metodoPago.set(null);
+    }
+  }
+
+  seleccionarMetodoPago(metodo: FormaPago): void {
+    if (this.usarSaldo() && this.totalFinalPago() === 0) return;
+
+    this.metodoPago.update((actual) => (actual === metodo ? null : metodo));
+  }
+
   async confirmarCompra(): Promise<void> {
-    if (this.metodoPago() === null || !this.funcion || this.butacas.length === 0) return;
+    if (!this.funcion || this.butacas.length === 0) return;
+
+    if (this.totalFinalPago() > 0 && this.metodoPago() === null) {
+      this.errorCompra.set('Seleccioná un medio para pagar el importe restante.');
+      return;
+    }
 
     this.procesando.set(true);
     this.errorCompra.set('');
@@ -74,13 +107,15 @@ export class CompraComponent {
           asiento: butaca.numero,
           precio: this.precioButaca(butaca),
         })),
-        metodoPago: this.metodoPago()!,
+        metodoPago: this.metodoPago(),
+        usarSaldo: this.usarSaldo(),
         total: this.totalCompra(),
         productos: this.carritoService.carrito().map((item) => ({
           productoId: item.producto.id,
           cantidad: item.cantidad,
           precioUnitario: item.producto.precio,
         })),
+        codigoCupon: this.cuponAplicado()?.codigo ?? null,
       });
 
       this.ventaId.set(ventaId);
@@ -196,13 +231,18 @@ export class CompraComponent {
       agregarLinea('FUNCIÓN', { negrita: true });
       agregarLinea(`Película: ${this.nombrePelicula || 'Película'}`);
       agregarLinea(`Fecha y hora: ${this.funcion.fecha} · ${this.funcion.hora}`);
-      agregarLinea(`Sala: ${this.funcion.salaId} · ${this.funcion.proyeccion} · ${this.funcion.idioma}`);
+      agregarLinea(
+        `Sala: ${this.funcion.salaId} · ${this.funcion.proyeccion} · ${this.funcion.idioma}`,
+      );
 
       y += 3;
       agregarLinea('BUTACAS', { negrita: true });
       for (const butaca of this.butacas) {
-        const tipo = butaca.tipo === 'vip' ? 'VIP' : 'General';
-        agregarImporte(`Fila ${butaca.fila}, asiento ${butaca.numero} (${tipo})`, this.precioButaca(butaca));
+        const tipo = butaca.tipo;
+        agregarImporte(
+          `Fila ${butaca.fila}, asiento ${butaca.numero} (${tipo})`,
+          this.precioButaca(butaca),
+        );
       }
 
       const productos = this.carritoService.carrito();
@@ -220,14 +260,28 @@ export class CompraComponent {
       y += 3;
       agregarLinea('RESUMEN', { negrita: true });
       agregarImporte('Subtotal', this.totalCompra());
-      if (this.importeDescuento() > 0) agregarImporte('Descuento', -this.importeDescuento());
-      if (this.creditoAplicado() > 0) agregarImporte('Crédito utilizado', -this.creditoAplicado());
-      agregarImporte('Total pagado', this.totalFinalPago(), true);
+      if (this.importeDescuentoCupon() > 0) {
+        agregarImporte('Descuento cupón', -this.importeDescuentoCupon());
+      }
+      if (this.descuentoPrimeraCompra() > 0) {
+        agregarImporte('Descuento primera compra', -this.importeDescuentoPrimeraCompra());
+      }
+      if (this.descuentoMayoresDe50() > 0) {
+        agregarImporte('Descuento mayores', -this.importeDescuentoMayoresDe50());
+      }
+      if (this.creditoAplicado() > 0) {
+        agregarImporte('Crédito utilizado', -this.creditoAplicado());
+        agregarImporte('Total pagado', this.totalFinalPago(), true);
+      }
 
       y += 7;
       pdf.setFontSize(9);
       pdf.setTextColor(110, 114, 122);
-      pdf.text('Presentá el código QR junto con este comprobante. El pago registrado es simulado.', margenIzquierdo, y);
+      pdf.text(
+        'Presentá el código QR junto con este comprobante. El pago registrado es simulado.',
+        margenIzquierdo,
+        y,
+      );
       pdf.save(`cinefila-compra-${this.ventaId()}.pdf`);
     } catch (error) {
       console.error('No se pudo generar el comprobante PDF', error);
@@ -260,16 +314,31 @@ export class CompraComponent {
     this.router.navigateByUrl('/inicio');
   }
 
-  descuentoPorcentaje = signal(0);
+  descuentoPrimeraCompra = signal(0);
+  descuentoMayoresDe50 = signal(0);
   saldoCredito = signal(0);
+  descuentoPorcentaje = computed(
+    () =>
+      this.descuentoPrimeraCompra() +
+      this.descuentoMayoresDe50() +
+      (this.cuponAplicado()?.porcentaje ?? 0),
+  );
 
   async ngOnInit(): Promise<void> {
+    const supabase = await getSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    this.esUsuarioRegistrado.set(!!user && !user.is_anonymous);
+
     try {
       const [descuento, credito] = await Promise.all([
-        this.ventaService.obtenerDescuentoPrimeraCompra(),
+        this.ventaService.obtenerDescuentoAplicable(),
         this.ventaService.obtenerSaldoCredito(),
       ]);
-      this.descuentoPorcentaje.set(descuento);
+      this.descuentoPrimeraCompra.set(descuento.descuentoPrimeraCompra);
+      this.descuentoMayoresDe50.set(descuento.descuentoMayores);
       this.saldoCredito.set(credito);
     } catch (error) {
       console.error(error);
@@ -281,15 +350,65 @@ export class CompraComponent {
     return Math.round(((this.totalCompra() * this.descuentoPorcentaje()) / 100) * 100) / 100;
   }
 
+  importeDescuentoPrimeraCompra(): number {
+    return Math.round(((this.totalCompra() * this.descuentoPrimeraCompra()) / 100) * 100) / 100;
+  }
+
+  importeDescuentoCupon(): number {
+    const porcentaje = this.cuponAplicado()?.porcentaje ?? 0;
+    return Math.round(((this.totalCompra() * porcentaje) / 100) * 100) / 100;
+  }
+
+  importeDescuentoMayoresDe50(): number {
+    return (
+      this.importeDescuento() - this.importeDescuentoPrimeraCompra() - this.importeDescuentoCupon()
+    );
+  }
+
   totalConDescuento(): number {
     return this.totalCompra() - this.importeDescuento();
   }
 
   creditoAplicado(): number {
+    if (!this.usarSaldo()) return 0;
     return Math.min(this.saldoCredito(), this.totalConDescuento());
   }
 
   totalFinalPago(): number {
     return this.totalConDescuento() - this.creditoAplicado();
+  }
+
+  actualizarCodigoCupon(event: Event): void {
+    //Recibo el evento como un objeto HTML para poder usar la propiedad value.
+    this.codigoCupon.set((event.target as HTMLInputElement).value);
+  }
+
+  async aplicarCupon(): Promise<void> {
+    this.errorCupon.set('');
+
+    if (!this.codigoCupon().trim()) {
+      this.errorCupon.set('Ingresá un código de cupón.');
+      return;
+    }
+
+    this.validandoCupon.set(true);
+
+    try {
+      const cupon = await this.ventaService.validarCupon(this.codigoCupon());
+      this.cuponAplicado.set(cupon);
+      this.codigoCupon.set(cupon.codigo);
+    } catch (error) {
+      console.error(error);
+      this.cuponAplicado.set(null);
+      this.errorCupon.set(error instanceof Error ? error.message : 'No se pudo validar el cupón.');
+    } finally {
+      this.validandoCupon.set(false);
+    }
+  }
+
+  quitarCupon(): void {
+    this.cuponAplicado.set(null);
+    this.codigoCupon.set('');
+    this.errorCupon.set('');
   }
 }

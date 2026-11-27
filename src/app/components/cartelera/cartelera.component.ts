@@ -20,7 +20,6 @@ export class CarteleraComponent {
 
   peliculasFiltradas = computed(() => {
     const texto = this.busqueda().trim().toLocaleLowerCase();
-
     const genero = this.generoSeleccionado().toLocaleLowerCase();
 
     return this.peliculasObtenidas().filter((pelicula) => {
@@ -41,7 +40,9 @@ export class CarteleraComponent {
 
   async ngOnInit(): Promise<void> {
     try {
-      this.peliculasObtenidas.set(await this.peliculaService.obtenerTodas());
+      const peliculas = await this.peliculaService.obtenerTodas();
+      const peliculasDisponibles = peliculas.filter((p) => p.estaDisponible);
+      this.peliculasObtenidas.set(peliculasDisponibles);
     } catch {
       this.errorCarga.set('No pudimos cargar la cartelera.');
     } finally {

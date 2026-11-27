@@ -14,3 +14,9 @@ export interface FilaButacas {
   tipo: TipoButaca;
   bloques: Butaca[][];
 }
+
+export interface ButacaCompra {
+  fila: string;
+  asiento: number;
+  precio: number;
+}
