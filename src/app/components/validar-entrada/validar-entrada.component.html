@@ -1,27 +1,123 @@
-<form (ngSubmit)="buscarEntrada()">
-  <input
-    type="number"
-    name="inputId"
-    placeholder="ID de entrada"
-    min="1"
-    required
-    [(ngModel)]="inputId"
-  />
-  <button type="submit" [disabled]="cargando()">Buscar</button>
+<main class="validation-page">
+  <header class="validation-heading">
+    <span class="section-kicker">ACCESO AL CINE</span>
+    <h1>Validar entrada</h1>
+    <p>Ingresá el identificador de la entrada para consultar su estado y autorizar el ingreso.</p>
+  </header>
 
-  @if (mensaje()) {
-    <p>{{ mensaje() }}</p>
-  }
-
-  @if (entrada()) {
-    <p>Fila: {{ entrada()?.fila }}</p>
-    <p>Asiento: {{ entrada()?.asiento }}</p>
-    <p>Precio: {{ entrada()?.precio | currency: 'ARS' }}</p>
-    <p>Estado: {{ entrada()?.estadoEntrada }}</p>
-    <div>
-      <button type="button" (click)="validarEntrada()" [disabled]="cargando()">Validar</button>
+  <section class="validation-panel" aria-labelledby="lookup-title">
+    <div class="panel-heading">
+      <div class="panel-icon" aria-hidden="true">⌕</div>
+      <div>
+        <h2 id="lookup-title">Buscar entrada</h2>
+        <p>La validación sólo puede realizarse una vez.</p>
+      </div>
     </div>
+
+    <form class="lookup-form" (ngSubmit)="buscarEntrada()">
+      <div class="lookup-field">
+        <label for="entrada-id">ID de entrada</label>
+        <input
+          id="entrada-id"
+          type="number"
+          name="inputId"
+          placeholder="Ej.: 1042"
+          min="1"
+          required
+          [(ngModel)]="inputId"
+          [disabled]="cargando()"
+        />
+      </div>
+      <button class="search-button" type="submit" [disabled]="cargando()">
+        {{ cargando() ? 'Buscando…' : 'Buscar entrada' }}
+      </button>
+    </form>
+
+    @if (mensaje()) {
+      <p class="validation-message" role="status" aria-live="polite">{{ mensaje() }}</p>
+    }
+  </section>
+
+  @if (entrada(); as entrada) {
+    <section class="ticket-panel" aria-labelledby="ticket-title">
+      <div class="ticket-heading">
+        <div>
+          <span class="section-kicker">DETALLE</span>
+          <h2 id="ticket-title">Entrada #{{ entrada.id }}</h2>
+        </div>
+        <span
+          class="status-badge"
+          [class.status-issued]="entrada.estadoEntrada === 'emitida'"
+          [class.status-used]="entrada.estadoEntrada === 'utilizada'"
+          [class.status-cancelled]="entrada.estadoEntrada === 'cancelada'"
+        >
+          {{ entrada.estadoEntrada }}
+        </span>
+      </div>
+
+      @if (entrada.funcion; as funcion) {
+        <div class="movie-ticket">
+          @if (funcion.pelicula?.imagen) {
+            <img
+              class="movie-poster"
+              [src]="funcion.pelicula?.imagen"
+              [alt]="'Póster de ' + (funcion.pelicula?.nombre ?? 'la película')"
+            />
+          } @else {
+            <div class="movie-poster poster-placeholder" aria-hidden="true">🎬</div>
+          }
+          <div class="movie-ticket-copy">
+            <span class="section-kicker">PELÍCULA</span>
+            <h3>{{ funcion.pelicula?.nombre ?? 'Película no disponible' }}</h3>
+            <p>
+              {{ funcion.fecha }} · {{ funcion.hora }} · Sala {{ funcion.salaId }}
+            </p>
+            <p>{{ funcion.proyeccion }} · {{ funcion.idioma }}</p>
+          </div>
+        </div>
+      } @else {
+        <p class="ticket-data-warning">No se pudieron cargar los datos de la función.</p>
+      }
+
+      <div class="ticket-details">
+        <div class="detail-item seat-detail">
+          <span>Ubicación</span>
+          <strong>Fila {{ entrada.fila }} · Butaca {{ entrada.asiento }}</strong>
+        </div>
+        <div class="detail-item">
+          <span>Precio</span>
+          <strong>{{ entrada.precio | currency: 'ARS' }}</strong>
+        </div>
+        <div class="detail-item">
+          <span>Identificador</span>
+          <strong>#{{ entrada.id }}</strong>
+        </div>
+      </div>
+
+      <div class="ticket-actions">
+        <p>
+          @if (entrada.estadoEntrada === 'emitida') {
+            La entrada está lista para validar.
+          } @else if (entrada.estadoEntrada === 'utilizada') {
+            Esta entrada ya fue utilizada.
+          } @else {
+            Esta entrada no está disponible para validar.
+          }
+        </p>
+        <button
+          class="validate-button"
+          type="button"
+          (click)="validarEntrada()"
+          [disabled]="cargando() || entrada.estadoEntrada !== 'emitida'"
+        >
+          {{ cargando() ? 'Validando…' : 'Validar ingreso' }}
+        </button>
+      </div>
+    </section>
   } @else if (cargando()) {
-    <p>Buscando entrada...</p>
+    <div class="loading-panel" role="status" aria-live="polite">
+      <span class="loading-indicator" aria-hidden="true"></span>
+      <p>Buscando entrada…</p>
+    </div>
   }
-</form>
+</main>

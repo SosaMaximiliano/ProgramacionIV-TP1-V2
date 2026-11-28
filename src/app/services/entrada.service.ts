@@ -7,7 +7,21 @@ export class EntradaService {
   async obtenerUna(id: number): Promise<Entrada | null> {
     const supabase = await getSupabaseClient();
 
-    const { data, error } = await supabase.from('entradas').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await supabase
+      .from('entradas')
+      .select(
+        `*,
+        funcion:funciones(
+          fecha,
+          hora,
+          sala_id,
+          proyeccion,
+          idioma,
+          pelicula:peliculas(nombre, imagen)
+        )`,
+      )
+      .eq('id', id)
+      .maybeSingle();
 
     if (error) throw error;
     if (!data) return null;
@@ -23,6 +37,16 @@ export class EntradaService {
       asiento: data.asiento,
       precio: Number(data.precio),
       estadoEntrada: data.estado_entrada,
+      funcion: data.funcion
+        ? {
+            fecha: data.funcion.fecha,
+            hora: data.funcion.hora,
+            salaId: data.funcion.sala_id,
+            proyeccion: data.funcion.proyeccion,
+            idioma: data.funcion.idioma,
+            pelicula: data.funcion.pelicula,
+          }
+        : null,
     };
   }
 

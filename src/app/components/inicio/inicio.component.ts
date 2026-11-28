@@ -3,7 +3,6 @@ import { Router, RouterLink } from '@angular/router';
 import { PeliculaService } from '../../services/pelicula.service';
 import { Pelicula } from '../../models/pelicula.model';
 import { PeliculaComponent } from '../pelicula/pelicula.component';
-import { UsuarioService } from '../../services/usuario.service';
 
 @Component({
   imports: [RouterLink, PeliculaComponent],
@@ -20,7 +19,6 @@ export class InicioComponent implements OnInit {
   constructor(
     private peliculaService: PeliculaService,
     private router: Router,
-    private usuarioService: UsuarioService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -78,9 +76,5 @@ export class InicioComponent implements OnInit {
 
   seleccionarPelicula(pelicula: Pelicula): void {
     this.router.navigate(['/detalle', pelicula.id]);
-  }
-
-  prueba() {
-    this.usuarioService.obtenerPeliculasVistas();
   }
 }

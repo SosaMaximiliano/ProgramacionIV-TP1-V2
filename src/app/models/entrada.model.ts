@@ -8,6 +8,14 @@ export interface Entrada {
   precio: number;
   ventaId: number;
   estadoEntrada: EstadoEntrada;
+  funcion?: {
+    fecha: string;
+    hora: string;
+    salaId: number;
+    proyeccion: string;
+    idioma: string;
+    pelicula: { nombre: string; imagen: string } | null;
+  } | null;
 }
 
 export interface EntradaDesdeSupabase {
@@ -20,6 +28,9 @@ export interface EntradaDesdeSupabase {
   funcion: {
     fecha: string;
     hora: string;
-    pelicula: string;
-  };
+    sala_id: number;
+    proyeccion: string;
+    idioma: string;
+    pelicula: { nombre: string; imagen: string } | null;
+  } | null;
 }

@@ -25,8 +25,7 @@
 <section class="top3" aria-labelledby="top-movies-title">
   @if (topPeliculas().length > 0) {
     <div class="top-title-container">
-      <span class="section-kicker">LAS MÁS VISTAS</span>
-      <h2 id="top-movies-title" class="top-title">Las películas más vendidas</h2>
+      <h2 id="top-movies-title" class="top-title">Las más vistas...</h2>
     </div>
     <div class="peliculas-grid">
       @for (pelicula of topPeliculas(); track pelicula.id) {
@@ -41,17 +40,12 @@
   }
 </section>
 
-<section class="home-discover">
-  <div class="discover-icon" aria-hidden="true">▰</div>
-  <div>
-    <span class="section-kicker">EN LA PANTALLA GRANDE</span>
-    <h2>Una experiencia que se disfruta mejor acá.</h2>
-  </div>
-  <a routerLink="/cartelera">Ver películas <span aria-hidden="true">↗</span></a>
-</section>
-
 <section class="upcoming-section" aria-labelledby="upcoming-title">
   @if (cargandoProximas()) {
+    <p class="upcoming-status">Cargando próximos estrenos…</p>
+  } @else if (errorProximas()) {
+    <p class="upcoming-status" role="alert">{{ errorProximas() }}</p>
+  } @else if (peliculasProximas().length > 0) {
     <header class="upcoming-heading">
       <div>
         <span class="section-kicker">PREPARÁ TU PRÓXIMA VISITA</span>
@@ -61,10 +55,6 @@
       <a routerLink="/cartelera">Ver cartelera <span aria-hidden="true">↗</span></a>
     </header>
 
-    <p class="upcoming-status">Cargando próximos estrenos…</p>
-  } @else if (errorProximas()) {
-    <p class="upcoming-status" role="alert">{{ errorProximas() }}</p>
-  } @else if (peliculasProximas().length > 0) {
     <div class="upcoming-grid">
       @for (pelicula of peliculasProximas(); track pelicula.id) {
         <app-pelicula-component
@@ -77,5 +67,3 @@
     <p class="upcoming-status">No hay estrenos previstos para las próximas cuatro semanas.</p>
   }
 </section>
-
-<button (click)="prueba()"></button>
